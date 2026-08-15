@@ -180,6 +180,18 @@
     padding: 7px 12px; border-radius: 8px; cursor:pointer;
   }
   .btn-ghost:hover{ background: var(--bg); }
+  .btn-ghost.back-btn{
+    font-size: 12px;
+    padding: 6px 11px;
+    border-color: var(--border);
+    background: var(--surface);
+    color: var(--ink-soft);
+  }
+  .btn-ghost.back-btn:hover{
+    background: var(--bg);
+    border-color: #D6D5D0;
+    color: var(--ink);
+  }
 
   .chat-body{
     flex:1; overflow-y:auto; padding: 18px 16px;
@@ -465,7 +477,7 @@
           <div class="fr-action-bar" id="frScreeningBar" style="display:none;">
             <span class="fr-sel-count">Vuoi procedere con la bozza?</span>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn-ghost" onclick="frBack(1)">← Indietro</button>
+              <button class="btn-ghost back-btn" onclick="frBack(1)">← Indietro</button>
               <button class="btn-primary" onclick="frPhase3()">Prepara bozza →</button>
             </div>
           </div>
@@ -478,7 +490,7 @@
           <div id="frBozzaOutput"></div>
           <div class="fr-action-bar" id="frBozzaBar" style="display:none;">
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn-ghost" onclick="frBack(2)">← Indietro</button>
+              <button class="btn-ghost back-btn" onclick="frBack(2)">← Indietro</button>
               <button class="btn-ghost" onclick="frReset()">↺ Nuova ricerca</button>
             </div>
             <button class="btn-primary" onclick="frSaveContext()">💾 Salva contesto su Drive</button>
@@ -1180,7 +1192,6 @@ async function frPhase3(){
 }
 
 function frSaveContext(){
-  const bandiSelezionati = frSelectedBandi.map(i => frPhase1Results[i].nome).join(", ");
   const content = "# Sessione Fundraising Archimedu\n\n" + frPhase2Results;
   pendingContextSave = {
     kind: "chat",
