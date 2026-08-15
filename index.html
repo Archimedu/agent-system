@@ -242,7 +242,7 @@
   .fr-stepper{ display:flex; align-items:flex-start; margin-bottom:28px; }
   .fr-step-item{ display:flex; flex-direction:column; align-items:center; flex:1; position:relative; }
   .fr-step-item:not(:last-child)::after{ content:''; position:absolute; top:13px; left:55%; width:90%; height:1px; background: var(--border); z-index:0; }
-  .fr-step-circle{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; z-index:1; border:1px solid var(--border); background: var(--surface); color: var(--ink-faint); transition: all .3s; }
+  .fr-step-circle{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; z-index:1; border:1px solid var(--border); background: var(--surface); color: var(--ink-faint); }
   .fr-step-circle.active{ background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
   .fr-step-circle.done{ background: #E8F5EE; border-color: var(--success); color: var(--success); }
   .fr-step-label{ font-size:10px; color: var(--ink-faint); margin-top:5px; text-align:center; max-width:70px; line-height:1.3; }
@@ -277,7 +277,7 @@
 
   .fr-action-bar{ display:flex; align-items:center; justify-content:space-between; padding:14px 0 2px; border-top:1px solid var(--border); margin-top:4px; }
   .fr-sel-count{ font-size:13px; color: var(--ink-soft); }
-  .fr-output{ background: var(--bg); border:1px solid var(--border); border-radius: var(--radius); padding:16px 18px; font-size:13.3px; line-height:1.7; white-space:pre-wrap; margin-bottom:14px; color: var(--ink); }
+  .fr-output{ background: var(--bg); border:1px solid var(--border); border-radius: var(--radius); padding:16px 18px; font-size:13.3px; line-height:1.7; white-space:pre-wrap; margin-bottom:14px; }
   .fr-loading{ display:flex; align-items:center; gap:10px; padding:20px; color: var(--ink-soft); font-size:13.5px; }
 
   .guide{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius-lg); padding: 26px 28px; max-width: 760px; }
@@ -464,7 +464,10 @@
           <div id="frScreeningOutput"></div>
           <div class="fr-action-bar" id="frScreeningBar" style="display:none;">
             <span class="fr-sel-count">Vuoi procedere con la bozza?</span>
-            <button class="btn-primary" onclick="frPhase3()">Prepara bozza →</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn-ghost" onclick="frBack(1)">← Indietro</button>
+              <button class="btn-primary" onclick="frPhase3()">Prepara bozza →</button>
+            </div>
           </div>
         </div>
 
@@ -474,7 +477,10 @@
           <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;">Bozza narrativa e struttura della domanda per il bando con priorità più alta.</p>
           <div id="frBozzaOutput"></div>
           <div class="fr-action-bar" id="frBozzaBar" style="display:none;">
-            <button class="btn-ghost" onclick="frReset()">↺ Nuova ricerca</button>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn-ghost" onclick="frBack(2)">← Indietro</button>
+              <button class="btn-ghost" onclick="frReset()">↺ Nuova ricerca</button>
+            </div>
             <button class="btn-primary" onclick="frSaveContext()">💾 Salva contesto su Drive</button>
           </div>
         </div>
@@ -487,13 +493,13 @@
         <h2>Come usare il sistema agenti</h2>
         <p class="lead">Una guida rapida per i membri di Fondazione Archimedu ETS.</p>
         <div class="guide-step"><div class="num">1</div><div><h3>Scegli il tuo agente</h3><p>Nella tab "Agenti" trovi una card per ciascun membro della fondazione, più l'Agente Fundraising della fondazione. Clic sulla tua card per aprire la chat dedicata.</p></div></div>
-        <div class="guide-step"><div class="num">2</div><div><h3>Conversa liberamente</h3><p>Scrivi il tuo messaggio e premi Invio o "Invia". L'agente risponde secondo il tuo ruolo e il contesto della fondazione. La cronologia resta visibile per tutta la sessione; usa "Nuova chat" per ripartire da zero.</p></div></div>
+        <div class="guide-step"><div class="num">2</div><div><h3>Conversa liberamente</h3><p>Scrivi il tuo messaggio e premi Invio o "Invia". L'agente risponde secondo il tuo ruolo e il contesto della fondazione. La cronologia resta visibile per tutta la sessione; usa "Nuova chat" per ricominciare.</p></div></div>
         <div class="guide-step"><div class="num">3</div><div><h3>Fai collaborare più agenti</h3><p>Nella tab "Flusso inter-agente" scegli da 2 a 4 agenti in sequenza e inserisci un task. L'output di ogni agente viene passato automaticamente al successivo.</p></div></div>
-        <div class="guide-step"><div class="num">4</div><div><h3>Routine Fundraising</h3><p>Nella tab dedicata puoi avviare la ricerca guidata di bandi e CSR: seleziona le aree di interesse, flagga le opportunità rilevanti, esegui lo screening e genera la bozza di candidatura. Al termine puoi salvare il contesto su Drive.</p></div></div>
-        <div class="guide-step"><div class="num">5</div><div><h3>Configura il proxy Claude (una tantum)</h3><p>L'app usa un proxy Google Apps Script che custodisce la chiave API. Inserisci URL e token nelle Impostazioni (⚙).</p></div></div>
-        <div class="guide-step"><div class="num">6</div><div><h3>Salva il contesto su Google Drive</h3><p>Al termine di ogni conversazione o flusso, il sistema propone di generare una nota di sintesi e salvarla nella cartella Drive dedicata all'agente.</p></div></div>
-        <div class="guide-step"><div class="num">7</div><div><h3>Collega Google Drive (una tantum)</h3><p>Clic sull'icona ⚙, incolla l'ID Client OAuth Google e premi "Salva impostazioni e connetti Drive". Da quel momento il pallino diventa verde.</p></div></div>
-        <div class="guide-step"><div class="num">8</div><div><h3>Aggiorna il contesto della fondazione</h3><p>L'Agente Contesto mantiene aggiornato il documento di riferimento usato da tutti gli agenti. Apri la sua chat, premi "Carica contesto attuale" per importare l'ultima versione da Drive.</p></div></div>
+        <div class="guide-step"><div class="num">4</div><div><h3>Routine Fundraising</h3><p>Nella tab dedicata puoi avviare la ricerca guidata di bandi e CSR: seleziona le aree di interesse, flagga le opportunità, esegui lo screening e genera la bozza di candidatura.</p></div></div>
+        <div class="guide-step"><div class="num">5</div><div><h3>Configura il proxy Claude (una tantum)</h3><p>L'app usa un proxy Google Apps Script che custodisce la chiave API. Inserisci URL e token nelle Impostazioni.</p></div></div>
+        <div class="guide-step"><div class="num">6</div><div><h3>Salva il contesto su Google Drive</h3><p>Al termine di una conversazione o flusso, il sistema propone di generare una nota di sintesi e salvarla nella cartella Drive corretta.</p></div></div>
+        <div class="guide-step"><div class="num">7</div><div><h3>Collega Google Drive (una tantum)</h3><p>Clic sull'icona ⚙, incolla l'ID Client OAuth Google e premi "Salva impostazioni e connetti Drive".</p></div></div>
+        <div class="guide-step"><div class="num">8</div><div><h3>Aggiorna il contesto della fondazione</h3><p>L'Agente Contesto mantiene aggiornato il documento di riferimento usato da tutti gli agenti.</p></div></div>
         <div class="guide-note">Pubblicazione e proxy: le istruzioni complete per pubblicare l'app su GitHub Pages e creare il proxy Google Apps Script sono nel documento separato "Guida alla pubblicazione".</div>
         <p class="section-label">Alberatura cartelle Drive</p>
         <div class="tree">05_Agenti_AI
@@ -594,14 +600,14 @@
    DATI AGENTI
    ============================================================ */
 const AGENTS = [
-  { id:"lorenzo", name:"Lorenzo Lorenzi", role:"Presidente CdA", initials:"LL", colorBg:"#EEEDFE", colorFg:"#3C3489", agentList:"Agente Direttivo · Agente Supervisione Strategica", section:"staff", systemPrompt:"Sei l'agente AI di Lorenzo Lorenzi, Presidente di Fondazione Archimedu ETS, fondazione italiana del terzo settore che sviluppa educazione e la valuta digitale Edu per l'economia dei diritti umani. Supporti Lorenzo nella supervisione strategica del CdA, nelle decisioni istituzionali, nella rappresentanza esterna e nella visione complessiva. Rispondi in italiano con tono istituzionale ma diretto. Quando ricevi output da altri agenti, sintetizza e orienta strategicamente." },
-  { id:"giada", name:"Giada Bono", role:"Onboarding scuole", initials:"GB", colorBg:"#E1F5EE", colorFg:"#085041", agentList:"Agente Onboarding · Agente Relazioni Scolastiche", section:"staff", systemPrompt:"Sei l'agente AI di Giada Bono, responsabile dell'onboarding delle scuole per Fondazione Archimedu ETS. Supporti Giada nell'acquisizione di nuove scuole partner, nella gestione del processo di adesione, nella formazione iniziale dei docenti e nel monitoraggio dell'integrazione della valuta Edu. Rispondi in italiano con tono professionale e orientato alle relazioni. Conosci la scuola primaria Buon Pastore a Milano come caso attivo." },
-  { id:"giovanni", name:"Giovanni Pozzi", role:"Gestione patrimoniale", initials:"GP", colorBg:"#E6F1FB", colorFg:"#0C447C", agentList:"Agente Patrimoniale · Agente Fundraising", section:"staff", systemPrompt:"Sei l'agente AI di Giovanni Pozzi, responsabile della gestione patrimoniale di Fondazione Archimedu ETS. Supporti Giovanni nella gestione finanziaria, nel monitoraggio del patrimonio, nella rendicontazione al CdA, nell'analisi di bandi e finanziamenti e nella sostenibilità economica del progetto Edu. Rispondi in italiano con precisione e rigore, usando linguaggio tecnico-finanziario appropriato per il terzo settore italiano (D.Lgs. 117/2017)." },
-  { id:"giancarlo", name:"Giancarlo Giuffra", role:"Valuta digitale Edu", initials:"GG", colorBg:"#FAEEDA", colorFg:"#633806", agentList:"Agente Edu Tech · Agente GitHub · Agente Tokenomics", section:"staff", systemPrompt:"Sei l'agente AI di Giancarlo Giuffra, responsabile della valuta digitale Edu per Fondazione Archimedu ETS. Supporti Giancarlo nello sviluppo tecnico della valuta digitale, nella gestione degli issues GitHub del progetto Edu, nella definizione della tokenomics, nell'architettura del sistema e nell'integrazione con l'economia dei diritti umani. Rispondi in italiano con competenza tecnica su token digitali e sviluppo software." },
-  { id:"francesca", name:"Francesca Menaldo", role:"Legal", initials:"FM", colorBg:"#FAECE7", colorFg:"#4A1B0C", agentList:"Agente Legal ETS · Agente Compliance GDPR", section:"staff", systemPrompt:"Sei l'agente AI di Francesca Menaldo, responsabile della parte legale di Fondazione Archimedu ETS. Supporti Francesca nella gestione giuridica della fondazione, nella compliance con il Codice del Terzo Settore (D.Lgs. 117/2017), nel GDPR applicato alle attività con minori e scuole, nella contrattualistica con le scuole partner e negli aspetti legali della valuta digitale Edu. Rispondi in italiano con rigore giuridico, segnalando sempre quando serve consulenza legale certificata." },
-  { id:"federica", name:"Federica Gabardi", role:"Comunicazione & Buon Pastore", initials:"FG", colorBg:"#FBEAF0", colorFg:"#4B1528", agentList:"Agente Comunicazione · Agente Progetto Buon Pastore", section:"staff", systemPrompt:"Sei l'agente AI di Federica Gabardi, dipendente di Fondazione Archimedu ETS responsabile della comunicazione, assegnata al progetto presso la scuola primaria Buon Pastore a Milano (Municipio 1). Supporti Federica nella comunicazione istituzionale, nei contenuti per social e sito, nella documentazione del progetto Buon Pastore, nelle comunicazioni con famiglie e docenti, e nella reportistica delle attività educative. Rispondi in italiano con tono caldo, accessibile e orientato alla comunità scolastica." },
-  { id:"fundraising", name:"Agente Fundraising — Archimedu ETS", role:"Referente: Lorenzo Lorenzi (Presidente)", initials:"FR", colorBg:"#E8F5E9", colorFg:"#1B5E20", agentList:"Agente Bandi & Finanziamenti · Agente CSR Corporate", section:"fondazione", badge:"Fondazione · Fundraising", systemPrompt:"Sei l'agente Fundraising di Fondazione Archimedu ETS, che opera sotto la supervisione di Lorenzo Lorenzi (Presidente). La tua missione è identificare, monitorare e supportare la candidatura a opportunità di finanziamento in due aree principali:\n\n1. BANDI PUBBLICI E PRIVATI\nMonitora e analizza bandi provenienti da: fondazioni bancarie (Fondazione Cariplo, Fondazione Con il Sud, fondazioni di origine bancaria lombarde), bandi regionali e comunali (Regione Lombardia, Comune di Milano), bandi nazionali per ETS e impresa sociale (PNRR, Ministero del Lavoro, CSV, RUNTS), bandi europei rilevanti per educazione e innovazione sociale.\n\n2. CSR CORPORATE\nMonitora programmi di Corporate Social Responsibility di aziende private italiane e multinazionali attive in Lombardia, con focus su: aziende con programmi CSR in ambito educazione, innovazione digitale, economia sociale. Identifica i referenti CSR, le finestre di candidatura e i criteri di ammissibilità.\n\nPer ogni opportunità identificata fornisci: nome del bando/programma, ente erogatore, scadenza, importo disponibile, requisiti di ammissibilità, coerenza con la missione di Archimedu (educazione, valuta Edu, economia dei diritti umani), e un giudizio sintetico di candidabilità (alta / media / bassa).\n\nSupporti anche la redazione di lettere di intento, project summary e sezioni narrative delle domande di finanziamento. Rispondi in italiano con precisione, orientamento pratico e senso delle priorità." },
-  { id:"contesto", name:"Agente Contesto — Archimedu ETS", role:"Mantiene il contesto generale della fondazione", initials:"AC", colorBg:"#E7ECF1", colorFg:"#33445B", agentList:"Agente Documento di Contesto", section:"fondazione", badge:"Fondazione · Contesto", isContextAgent:true, systemPrompt:"Sei l'Agente Contesto di Fondazione Archimedu ETS. Il tuo compito è mantenere aggiornato il Documento di Contesto generale della fondazione — la base di conoscenza condivisa che tutti gli altri agenti usano come riferimento comune. Quando ricevi nuove informazioni, integrale nella struttura esistente del documento senza perdere le sezioni non toccate, segnalando chiaramente cosa è cambiato. Rispondi in italiano con precisione, chiarezza e senso di sintesi." }
+  { id:"lorenzo", name:"Lorenzo Lorenzi", role:"Presidente CdA", initials:"LL", colorBg:"#EEEDFE", colorFg:"#3C3489", agentList:"Agente Direttivo · Agente Supervisione Strategica", section:"staff", systemPrompt:"Sei l'agente AI di Lorenzo Lorenzi, Presidente di Fondazione Archimedu ETS, fondazione italiana del terzo settore che sviluppa educazione e la valuta digitale Edu per l'economia dei diritti umani. Agisci con visione strategica, cura istituzionale e capacità decisionale. Aiuti Lorenzo a valutare priorità, governance, relazioni con partner e coerenza tra missione, progetti e sostenibilità. Rispondi in italiano, con tono professionale, sintetico ma completo." },
+  { id:"giada", name:"Giada Bono", role:"Onboarding scuole", initials:"GB", colorBg:"#E1F5EE", colorFg:"#085041", agentList:"Agente Onboarding · Agente Relazioni Scolastiche", section:"staff", systemPrompt:"Sei l'agente AI di Giada Bono, responsabile dell'onboarding delle scuole per Fondazione Archimedu ETS. Supporti Giada nell'acquisizione di nuove scuole partner, nella gestione del processo di adesione e nel coordinamento operativo con la fondazione. Rispondi in italiano con tono chiaro, concreto e collaborativo." },
+  { id:"giovanni", name:"Giovanni Pozzi", role:"Gestione patrimoniale", initials:"GP", colorBg:"#E6F1FB", colorFg:"#0C447C", agentList:"Agente Patrimoniale · Agente Fundraising", section:"staff", systemPrompt:"Sei l'agente AI di Giovanni Pozzi, responsabile della gestione patrimoniale di Fondazione Archimedu ETS. Supporti Giovanni nella gestione finanziaria, nel monitoraggio del patrimonio, nella sostenibilità economica e nella valutazione di opportunità di investimento coerenti con la missione dell'ente. Rispondi in italiano con precisione e prudenza." },
+  { id:"giancarlo", name:"Giancarlo Giuffra", role:"Valuta digitale Edu", initials:"GG", colorBg:"#FAEEDA", colorFg:"#633806", agentList:"Agente Edu Tech · Agente GitHub · Agente Tokenomics", section:"staff", systemPrompt:"Sei l'agente AI di Giancarlo Giuffra, responsabile della valuta digitale Edu per Fondazione Archimedu ETS. Supporti Giancarlo nello sviluppo tecnico della valuta digitale, nella gestione del progetto e nella comunicazione con il team tecnico. Rispondi in italiano con linguaggio tecnico ma chiaro." },
+  { id:"francesca", name:"Francesca Menaldo", role:"Legal", initials:"FM", colorBg:"#FAECE7", colorFg:"#4A1B0C", agentList:"Agente Legal ETS · Agente Compliance GDPR", section:"staff", systemPrompt:"Sei l'agente AI di Francesca Menaldo, responsabile della parte legale di Fondazione Archimedu ETS. Supporti Francesca nella gestione giuridica della fondazione, nella compliance con il Codice del Terzo Settore e con il GDPR, nella redazione e revisione di documenti legali. Rispondi in italiano con rigore e chiarezza." },
+  { id:"federica", name:"Federica Gabardi", role:"Comunicazione & Buon Pastore", initials:"FG", colorBg:"#FBEAF0", colorFg:"#4B1528", agentList:"Agente Comunicazione · Agente Progetto Buon Pastore", section:"staff", systemPrompt:"Sei l'agente AI di Federica Gabardi, dipendente di Fondazione Archimedu ETS responsabile della comunicazione, assegnata al progetto presso la scuola primaria Buon Pastore a Milano. Supporti Federica nella comunicazione interna ed esterna, nel coordinamento del progetto e nei contenuti rivolti a famiglie, scuola e partner. Rispondi in italiano con tono professionale, empatico e operativo." },
+  { id:"fundraising", name:"Agente Fundraising — Archimedu ETS", role:"Referente: Lorenzo Lorenzi (Presidente)", initials:"FR", colorBg:"#E8F5E9", colorFg:"#1B5E20", agentList:"Agente Bandi & Finanziamenti · Agente CSR Corporate", section:"fondazione", badge:"Fondazione · Fundraising", systemPrompt:"Sei l'agente Fundraising di Fondazione Archimedu ETS, che opera sotto la supervisione di Lorenzo Lorenzi (Presidente). La tua missione è identificare, monitorare e supportare la candidatura a opportunità di finanziamento in due aree principali: bandi pubblici e privati e CSR corporate. Per ogni opportunità fornisci nome, ente, scadenza, importo, requisiti di ammissibilità, coerenza con la missione di Archimedu e un giudizio sintetico di candidabilità. Rispondi in italiano in modo pratico e prioritizzato." },
+  { id:"contesto", name:"Agente Contesto — Archimedu ETS", role:"Mantiene il contesto generale della fondazione", initials:"AC", colorBg:"#E7ECF1", colorFg:"#33445B", agentList:"Agente Knowledge Base", section:"fondazione", badge:"Fondazione · Contesto", systemPrompt:"Sei l'agente AI di Archimedu ETS dedicato a mantenere aggiornato il documento di contesto generale usato da tutti gli agenti. Quando ricevi aggiornamenti, sintetizzali, incorpora le nuove informazioni rilevanti e produci una nota di contesto pulita, coerente e pronta per il salvataggio su Drive. Rispondi in italiano con struttura chiara e concisezza." }
 ];
 
 const AGENTS_BY_ID = Object.fromEntries(AGENTS.map(a => [a.id, a]));
@@ -620,7 +626,7 @@ const DRIVE_FOLDER_MAP = {
 const FLOW_FOLDER = { id: "1P5R3QASoiAu8ZrEK13gF0fkg6rEC3I-P", label: "05_Agenti_AI / 06_Context_Agent" };
 
 /* ============================================================
-   DRIVE OAUTH (identico all'originale)
+   DRIVE OAUTH
    ============================================================ */
 let driveClientId = localStorage.getItem("archimedu_drive_client_id") || "";
 let claudeProxyUrl = localStorage.getItem("archimedu_proxy_url") || "";
@@ -758,7 +764,7 @@ async function loadFoundationContextIntoChat(){
 }
 
 /* ============================================================
-   GENERAZIONE FILE DI CONTESTO (identico all'originale)
+   GENERAZIONE FILE DI CONTESTO
    ============================================================ */
 function timestampSlug(){
   const d = new Date(); const pad = n => String(n).padStart(2,"0");
@@ -766,7 +772,7 @@ function timestampSlug(){
 }
 function slugify(text){ return text.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
 
-const CONTEXT_NOTE_INSTRUCTIONS = "Qui sotto trovi la trascrizione di una conversazione o di un'elaborazione appena conclusa. Scrivi una nota di contesto sintetica in formato markdown, pensata per essere letta da un altro agente (o da te stesso) al passaggio successivo, per garantire continuità operativa. Struttura la nota con queste sezioni, in italiano:\n- Oggetto: una riga che riassume il tema\n- Punti chiave / decisioni prese\n- Dati o informazioni rilevanti emerse\n- Attività aperte o prossimi passi\nNon includere formule di cortesia, non ripetere la trascrizione integrale, non aggiungere premesse. Scrivi solo il contenuto della nota, pronta per essere salvata così com'è in un file.";
+const CONTEXT_NOTE_INSTRUCTIONS = "Qui sotto trovi la trascrizione di una conversazione o di un'elaborazione appena conclusa. Scrivi una nota di contesto sintetica in formato markdown, pensata per essere salvata su Drive e riletta rapidamente da un altro agente. Evidenzia decisioni, informazioni utili, prossimi passi e punti aperti. Non aggiungere prefazioni o spiegazioni fuori dal markdown.";
 
 async function generateChatContextNote(agent, history){
   const transcript = history.map(m => (m.role==="user"?"Utente":"Agente") + ": " + m.content).join("\n\n");
@@ -784,7 +790,7 @@ async function generateFlowContextNote(stepIds, task, finalOutput){
 
 async function generateFoundationContextUpdate(agent, history){
   const transcript = history.map(m => (m.role==="user"?"Utente":"Agente") + ": " + m.content).join("\n\n");
-  const prompt = "Qui sotto trovi la trascrizione della conversazione appena conclusa con l'Agente Contesto. Se nella trascrizione è presente un documento di contesto caricato in precedenza, usalo come base. Produci la versione aggiornata e completa del Documento di Contesto della Fondazione Archimedu, in formato markdown, mantenendo tutte le sezioni esistenti e integrando le informazioni nuove emerse in questa conversazione. Non aggiungere premesse o commenti fuori dal documento stesso.\n\nTRASCRIZIONE:\n" + transcript;
+  const prompt = "Qui sotto trovi la trascrizione della conversazione appena conclusa con l'Agente Contesto. Se nella trascrizione è presente un documento di contesto caricato in precedenza, usa quel contenuto come base per aggiornare il documento generale della fondazione. Produci una nota di contesto in markdown, sintetica ma completa, con eventuali aggiornamenti, decisioni e questioni aperte." + "\n\nTRASCRIZIONE:\n" + transcript;
   const note = await callAgent(agent.systemPrompt, [{role:"user", content: prompt}]);
   return "---\ndata: " + new Date().toISOString().slice(0,10) + "\ntipo: documento-contesto-fondazione\n---\n\n" + note;
 }
@@ -853,7 +859,7 @@ async function confirmSaveContextToDrive(){
       statusEl.textContent = "Errore nel salvataggio: " + err.message; statusEl.className = "modal-status error";
     }finally{ btn.disabled = false; }
   };
-  if(!isDriveConnected()){ statusEl.textContent = "Connessione a Google Drive necessaria…"; statusEl.className = "modal-status"; connectDrive(doUpload, (err) => { statusEl.textContent = "Connessione non riuscita: " + err; statusEl.className = "modal-status error"; }); }
+  if(!isDriveConnected()){ statusEl.textContent = "Connessione a Google Drive necessaria…"; statusEl.className = "modal-status"; connectDrive(doUpload, (err) => { statusEl.textContent = "Connessione a Drive non riuscita: " + err; statusEl.className = "modal-status error"; }); }
   else { await doUpload(); }
 }
 
@@ -919,8 +925,8 @@ function renderChatView(){
   const wrap = document.getElementById("chatPickerWrap");
   if(!currentChatAgentId){ wrap.innerHTML = `<div class="chat-picker">Seleziona un agente dalla tab "Agenti" per iniziare una conversazione.</div>`; return; }
   const agent = AGENTS_BY_ID[currentChatAgentId];
-  const loadContextBtn = agent.isContextAgent ? `<button class="btn-ghost" id="loadContextBtn" onclick="loadFoundationContextIntoChat()">Carica contesto attuale</button>` : "";
-  wrap.innerHTML = `<div class="chat-shell"><div class="chat-header"><div class="avatar" style="width:34px;height:34px;font-size:12px;background:${agent.colorBg};color:${agent.colorFg};">${agent.initials}</div><div class="who"><div class="name">${agent.name}</div><div class="role">${agent.role}</div></div><div class="spacer"></div>${loadContextBtn}<button class="btn-ghost" onclick="manualSaveChatContext()">Salva contesto</button><button class="btn-ghost" onclick="newChat()">Nuova chat</button></div><div class="chat-body" id="chatBody"></div><div class="chat-input-row"><textarea id="chatInput" rows="1" placeholder="Scrivi un messaggio…" onkeydown="handleChatKeydown(event)"></textarea><button class="btn-send" id="chatSendBtn" onclick="sendChatMessage()">Invia</button></div></div>`;
+  const loadContextBtn = agent.id === "contesto" ? `<button class="btn-ghost" id="loadContextBtn" onclick="loadFoundationContextIntoChat()">Carica contesto attuale</button>` : "";
+  wrap.innerHTML = `<div class="chat-shell"><div class="chat-header"><div class="avatar" style="width:34px;height:34px;font-size:12px;background:${agent.colorBg};color:${agent.colorFg};">${agent.initials}</div><div class="who"><div class="name">${agent.name}</div><div class="role">${agent.role}</div></div><div class="spacer"></div>${loadContextBtn}<button class="btn-ghost" onclick="manualSaveChatContext()">💾 Salva contesto</button><button class="btn-ghost" onclick="newChat()">↺ Nuova chat</button></div><div class="chat-body" id="chatBody"></div><div class="chat-input-row"><textarea id="chatInput" placeholder="Scrivi all'agente…" onkeydown="handleChatKeydown(event)"></textarea><button class="btn-send" id="chatSendBtn" onclick="sendChatMessage()">Invia ↗</button></div></div>`;
   renderChatMessages();
 }
 
@@ -929,7 +935,7 @@ function renderChatMessages(){
   if(!body) return;
   const history = chatHistories[currentChatAgentId];
   if(history.length === 0){ body.innerHTML = `<div class="chat-empty">Inizia la conversazione con il tuo agente. Le risposte tengono conto del ruolo e del contesto di Fondazione Archimedu ETS.</div>`; return; }
-  body.innerHTML = history.map(m => `<div class="bubble-row ${m.role==='user'?'user':'agent'}"><div class="bubble">${m.label?`<div style="font-size:11px;font-weight:700;color:var(--ink-faint);margin-bottom:4px;">${escapeHtml(m.label)}</div>`:""}${escapeHtml(m.content)}</div></div>`).join("");
+  body.innerHTML = history.map(m => `<div class="bubble-row ${m.role==='user'?'user':'agent'}"><div class="bubble">${m.label?`<div style="font-size:11px;font-weight:700;color:var(--ink-faint);margin-bottom:4px;">${m.label}</div>`:""}${escapeHtml(m.content)}</div></div>`).join("");
   body.scrollTop = body.scrollHeight;
 }
 
@@ -969,8 +975,8 @@ function newChat(){
   if(history.length === 0){ resetChat(); return; }
   const agent = AGENTS_BY_ID[agentId];
   const folder = DRIVE_FOLDER_MAP[agentId] || FLOW_FOLDER;
-  const filenameBase = agent.isContextAgent ? "Documento_Archimedu" : (agent.name + "_" + agentId);
-  const buildNote = agent.isContextAgent ? () => generateFoundationContextUpdate(agent, history) : () => generateChatContextNote(agent, history);
+  const filenameBase = agent.id === "contesto" ? "Documento_Archimedu" : (agent.name + "_" + agentId);
+  const buildNote = agent.id === "contesto" ? () => generateFoundationContextUpdate(agent, history) : () => generateChatContextNote(agent, history);
   promptSaveContext("chat", folder, filenameBase, buildNote, resetChat);
 }
 
@@ -980,8 +986,8 @@ function manualSaveChatContext(){
   if(history.length === 0){ alert("Non c'è ancora nessuna conversazione da salvare con questo agente."); return; }
   const agent = AGENTS_BY_ID[agentId];
   const folder = DRIVE_FOLDER_MAP[agentId] || FLOW_FOLDER;
-  const filenameBase = agent.isContextAgent ? "Documento_Archimedu" : (agent.name + "_" + agentId);
-  const buildNote = agent.isContextAgent ? () => generateFoundationContextUpdate(agent, history) : () => generateChatContextNote(agent, history);
+  const filenameBase = agent.id === "contesto" ? "Documento_Archimedu" : (agent.name + "_" + agentId);
+  const buildNote = agent.id === "contesto" ? () => generateFoundationContextUpdate(agent, history) : () => generateChatContextNote(agent, history);
   promptSaveContext("chat", folder, filenameBase, buildNote, () => {});
 }
 
@@ -1015,31 +1021,35 @@ async function runFlow(){
   const task = document.getElementById("flowTask").value.trim();
   if(!task){ alert("Inserisci un task da elaborare prima di eseguire il flusso."); return; }
   if(flowSteps.length < 2){ alert("Seleziona almeno 2 agenti per il flusso."); return; }
-  const runBtn = document.getElementById("runFlowBtn"); runBtn.disabled = true;
+  const runBtn = document.getElementById("runFlowBtn");
+  runBtn.disabled = true;
   clearTerminal();
-  termLine("Avvio flusso inter-agente…", "normal");
-  termLine("Passaggi: " + flowSteps.map(id => AGENTS_BY_ID[id].name).join(" → "), "muted");
+  termLine("▶ Flusso avviato · " + flowSteps.length + " agenti · " + new Date().toLocaleTimeString('it-IT'), "normal");
+  termLine("Task: " + task, "normal");
   termLine("", "normal");
-  let previousOutput = task;
+  let current = task;
   try{
-    for(let i = 0; i < flowSteps.length; i++){
-      const agent = AGENTS_BY_ID[flowSteps[i]];
-      termLine("[Passo " + (i+1) + "/" + flowSteps.length + "] " + agent.name, "relay");
-      let messageContent = i === 0 ? task : "[OUTPUT RICEVUTO]\n\n" + previousOutput + "\n\n[ISTRUZIONI]\nElabora nel tuo ruolo l'output ricevuto dall'agente precedente, aggiungendo il tuo contributo specifico.";
-      if(i === 0) termLine("→ Invio task iniziale…", "normal"); else termLine("→ Relay dell'output precedente in corso…", "relay");
-      const output = await callAgent(agent.systemPrompt, [{role:"user", content: messageContent}]);
-      previousOutput = output;
-      termLine("✓ " + agent.name + " ha completato l'elaborazione.", "success");
+    const stepsSnapshot = flowSteps.slice(); const taskSnapshot = task; const outputSnapshot = current;
+    for(let i = 0; i < stepsSnapshot.length; i++){
+      const agent = AGENTS_BY_ID[stepsSnapshot[i]];
+      termLine("[Passo " + (i+1) + "] " + agent.name, "normal");
+      if(i > 0) termLine("  ↳ Riceve output dal passo precedente", "relay");
+      const prompt = i === 0 ? current : "[OUTPUT RICEVUTO]\n\n" + current + "\n\n[ISTRUZIONI]\nElabora nel tuo ruolo l'output ricevuto dall'agente precedente.";
+      const reply = await callAgent(agent.systemPrompt, [{ role: "user", content: prompt }]);
+      current = reply;
+      termLine("  ✓ Completato", "success");
       termLine("", "normal");
     }
-    termLine("========================================", "muted");
-    termLine("OUTPUT FINALE DEL FLUSSO", "success");
-    termLine("========================================", "muted");
-    termLine(previousOutput, "normal");
-    const stepsSnapshot = flowSteps.slice(); const taskSnapshot = task; const outputSnapshot = previousOutput;
-    promptSaveContext("flow", FLOW_FOLDER, "Flusso_" + stepsSnapshot.map(id => AGENTS_BY_ID[id].initials).join("-"), () => generateFlowContextNote(stepsSnapshot, taskSnapshot, outputSnapshot), () => {});
-  }catch(err){ termLine("✗ Errore durante l'esecuzione del flusso: " + err.message, "error"); }
-  finally{ runBtn.disabled = false; }
+    termLine("■ Output finale:", "normal");
+    termLine(current, "normal");
+    termLine("", "normal");
+    termLine("Completato · " + new Date().toLocaleTimeString('it-IT'), "success");
+    pendingAfterAuth = null;
+  }catch(err){
+    termLine("✗ Errore durante l'esecuzione del flusso: " + err.message, "error");
+  }finally{
+    runBtn.disabled = false;
+  }
 }
 
 /* ============================================================
@@ -1067,6 +1077,8 @@ function frShowPhase(n){
 
 function frLoadingHtml(text){ return `<div class="fr-loading"><div class="typing-dots"><span></span><span></span><span></span></div>${text}</div>`; }
 
+function frBack(targetPhase){ frShowPhase(targetPhase); }
+
 async function frPhase1(){
   const aree = [];
   if(document.getElementById("frAreaBandi").checked) aree.push("bandi pubblici e fondazioni bancarie (Cariplo, Regione Lombardia, Comune di Milano, PNRR, Ministero del Lavoro)");
@@ -1077,22 +1089,18 @@ async function frPhase1(){
   document.getElementById("frBandiList").innerHTML = frLoadingHtml("Ricerca opportunità in corso…");
   const prompt = `Identifica esattamente 4 opportunità di finanziamento per Fondazione Archimedu ETS nelle seguenti aree: ${aree.join("; ")}.${extra ? " Contesto aggiuntivo: " + extra : ""}
 
-Rispondi SOLO con un array JSON valido e completo, nessun testo prima o dopo:
-[
-  {"n":"Nome bando","e":"Ente","t":"bando","c":"alta","i":"€X","s":"MM/YYYY","d":"Descrizione breve max 15 parole"},
-  {"n":"Nome","e":"Ente","t":"csr","c":"media","i":"€X","s":"aperto","d":"Descrizione breve max 15 parole"}
-]
-Campi: t = "bando" o "csr", c = "alta" o "media". Completa sempre tutti e 4 gli oggetti.`;
+Rispondi SOLO in JSON valido, senza testo aggiuntivo:
+[{"nome":"...","ente":"...","tipo":"bando","candidabilita":"alta","importo":"...","scadenza":"...","descrizione":"..."}]
+
+Usa solo i campi richiesti. tipo può essere "bando" o "csr". candidabilita può essere "alta" o "media".`;
   try{
-    const raw = await callAgent(FR_SYSTEM, [{role:"user", content:prompt}]);
-    const cleaned = raw.replace(/```json|```/g,"").trim();
-    // parsing difensivo: cerca il primo [ e l'ultimo ] completo
+    const raw = await callAgent(FR_SYSTEM, [{ role: "user", content: prompt }]);
+    const cleaned = raw.replace(/```json|```/g, "").trim();
     const start = cleaned.indexOf("[");
     const end = cleaned.lastIndexOf("]");
     if(start === -1 || end === -1 || end <= start) throw new Error("Formato JSON non trovato nella risposta. Riprova.");
     const jsonStr = cleaned.slice(start, end + 1);
     const parsed = JSON.parse(jsonStr);
-    // normalizza i campi abbreviati
     frPhase1Results = parsed.map(b => ({
       nome: b.nome || b.n || "—",
       ente: b.ente || b.e || "—",
@@ -1115,10 +1123,23 @@ function frRenderBandi(){
   frPhase1Results.forEach((b, i) => {
     const card = document.createElement("div");
     card.className = "bando-card"; card.id = "bando-" + i;
-    card.innerHTML = `<input type="checkbox" class="bando-check" id="bchk-${i}" onchange="frToggle(${i})"><div class="bando-body"><div class="bando-name">${b.nome}</div><div class="bando-tags"><span class="bando-tag ${b.tipo==='csr'?'tag-csr':'tag-bando'}">${b.tipo==='csr'?'CSR':'Bando'}</span><span class="bando-tag ${b.candidabilita==='alta'?'tag-alta':'tag-media'}">Candidabilità ${b.candidabilita}</span><span class="bando-tag tag-bando">${b.importo}</span></div><div class="bando-desc">${b.descrizione}</div><div class="bando-meta">Ente: ${b.ente} · Scadenza: ${b.scadenza}</div></div>`;
-    card.onclick = e => { if(e.target.tagName !== "INPUT"){ const chk = document.getElementById("bchk-" + i); chk.checked = !chk.checked; frToggle(i); } };
+    card.innerHTML = `
+      <input type="checkbox" class="bando-check" id="bchk-${i}" onchange="frToggle(${i})">
+      <div class="bando-body">
+        <div class="bando-name">${b.nome}</div>
+        <div class="bando-tags">
+          <span class="bando-tag ${b.tipo === 'csr' ? 'tag-csr' : 'tag-bando'}">${b.tipo === 'csr' ? 'CSR' : 'Bando'}</span>
+          <span class="bando-tag ${b.candidabilita === 'alta' ? 'tag-alta' : 'tag-media'}">Candidabilità ${b.candidabilita}</span>
+          <span class="bando-tag tag-bando">${b.importo}</span>
+        </div>
+        <div class="bando-desc">${b.descrizione}</div>
+        <div class="bando-meta">Ente: ${b.ente} · Scadenza: ${b.scadenza}</div>
+      </div>`;
+    card.onclick = e => { if(e.target.tagName !== 'INPUT'){ const chk = document.getElementById('bchk-' + i); chk.checked = !chk.checked; frToggle(i); } };
     el.appendChild(card);
   });
+  document.getElementById("frSelCount").textContent = "0 selezionati";
+  document.getElementById("frBtnScreening").disabled = true;
 }
 
 function frToggle(i){
