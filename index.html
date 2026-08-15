@@ -4,873 +4,1165 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Archimedu Agent System</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
-  :root {
-    --bg: #0f0f0f; --bg2: #1a1a1a; --bg3: #242424;
-    --border: #2e2e2e; --border2: #3a3a3a;
-    --text: #e8e8e8; --text2: #a0a0a0; --text3: #606060;
-    --purple: #7c6ef5; --purple-bg: #1e1a3a; --purple-light: #2d2660;
-    --green: #4ade80; --green-bg: #0f2a1a; --green-light: #1a4028;
-    --blue: #60a5fa; --blue-bg: #0f1f35; --blue-light: #1a3050;
-    --amber: #fbbf24; --amber-bg: #2a1f0a; --amber-light: #3a2e10;
-    --red: #f87171; --red-bg: #2a0f0f;
-    --radius: 10px; --radius-sm: 6px;
-    --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    --mono: 'SF Mono', 'Fira Code', monospace;
+  :root{
+    --bg: #F7F7F5;
+    --surface: #FFFFFF;
+    --border: #E4E3DF;
+    --ink: #1C1C1A;
+    --ink-soft: #5B5B56;
+    --ink-faint: #8A8A84;
+    --accent: #3C3489;
+    --accent-soft: #EEEDFE;
+    --accent-line: #C9C6F2;
+    --user-bubble: #E8ECF7;
+    --agent-bubble: #F0F0EE;
+    --success: #1B7A3D;
+    --warn: #A6740A;
+    --error: #B3331D;
+    --radius: 10px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 1px 2px rgba(20,20,15,0.06);
+    --shadow-md: 0 4px 16px rgba(20,20,15,0.08);
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
-  .app { max-width: 900px; margin: 0 auto; padding: 20px 16px 60px; }
 
-  /* Header */
-  .header { display: flex; align-items: center; justify-content: space-between; padding: 0 0 18px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
-  .logo { display: flex; align-items: center; gap: 12px; }
-  .logo-mark { width: 36px; height: 36px; border-radius: 9px; background: var(--purple-bg); border: 1px solid var(--purple-light); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; color: var(--purple); }
-  .logo-text .name { font-size: 15px; font-weight: 500; color: var(--text); }
-  .logo-text .sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
-  .status { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text3); }
-  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
-  .drive-status { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 5px; cursor: pointer; }
-  .drive-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); }
-  .drive-dot.connected { background: var(--green); }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
 
-  /* Settings btn */
-  .settings-btn { background: none; border: 1px solid var(--border); color: var(--text2); border-radius: var(--radius-sm); padding: 5px 10px; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-  .settings-btn:hover { border-color: var(--border2); color: var(--text); }
+  .app{
+    max-width: 1100px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
 
-  /* Tabs */
-  .tabs { display: flex; gap: 2px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
-  .tab { padding: 8px 16px; font-size: 12px; font-weight: 500; cursor: pointer; color: var(--text3); border-bottom: 2px solid transparent; margin-bottom: -1px; background: none; border-left: none; border-right: none; border-top: none; border-radius: 0; transition: all .15s; }
-  .tab:hover { color: var(--text2); }
-  .tab.active { color: var(--text); border-bottom-color: var(--purple); }
+  header.top{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding: 22px 24px 18px;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo-mark{
+    width: 42px; height:42px;
+    border-radius: 11px;
+    background: var(--accent);
+    color: #fff;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:20px;
+    letter-spacing: -0.02em;
+    flex-shrink:0;
+    box-shadow: var(--shadow-sm);
+  }
+  .brand-text h1{ font-size: 17px; margin:0; font-weight:700; letter-spacing:-0.01em; }
+  .brand-text p{ margin: 2px 0 0; font-size: 12.5px; color: var(--ink-soft); }
+  .status-pill{
+    margin-left:auto;
+    display:flex; align-items:center; gap:7px;
+    font-size:12.5px; color: var(--ink-soft);
+    background: var(--surface);
+    border:1px solid var(--border);
+    padding: 6px 12px;
+    border-radius: 999px;
+  }
+  .dot{
+    width:7px; height:7px; border-radius:50%;
+    background: var(--success);
+    box-shadow: 0 0 0 0 rgba(27,122,61,0.5);
+    animation: pulse 2.2s infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow: 0 0 0 0 rgba(27,122,61,0.35); }
+    70%{ box-shadow: 0 0 0 6px rgba(27,122,61,0); }
+    100%{ box-shadow: 0 0 0 0 rgba(27,122,61,0); }
+  }
 
-  /* Panels */
-  .panel { display: none; }
-  .panel.active { display: block; }
+  .welcome-banner{
+    margin: 18px 24px 0;
+    background: var(--accent-soft);
+    border: 1px solid var(--accent-line);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    display:flex; gap:14px; align-items:flex-start;
+  }
+  .welcome-banner p{ margin:0; font-size: 13.5px; line-height:1.55; color: var(--ink); }
+  .welcome-banner strong{ display:block; margin-bottom:3px; font-size:14px;}
+  .welcome-banner button{
+    background:none; border:none; cursor:pointer;
+    color: var(--accent); font-size: 13px; font-weight:600;
+    padding: 2px 4px; flex-shrink:0; margin-left:auto;
+  }
 
-  /* Section labels */
-  .section-label { font-size: 10px; font-weight: 500; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+  nav.tabs{
+    display:flex; gap: 4px;
+    padding: 18px 24px 0;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+  }
+  nav.tabs button{
+    background:none; border:none;
+    font-size: 14px; font-weight: 600;
+    color: var(--ink-faint);
+    padding: 10px 16px 14px;
+    cursor:pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom:-1px;
+    transition: color .15s ease;
+    white-space: nowrap;
+  }
+  nav.tabs button:hover{ color: var(--ink); }
+  nav.tabs button.active{ color: var(--accent); border-bottom-color: var(--accent); }
 
-  /* Agent grid */
-  .agent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 20px; }
-  .agent-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; cursor: pointer; transition: all .15s; }
-  .agent-card:hover { border-color: var(--border2); transform: translateY(-1px); }
-  .agent-card.selected { border-color: var(--purple); background: var(--purple-bg); }
-  .av { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; margin-bottom: 10px; }
-  .card-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; }
-  .card-role { font-size: 11px; color: var(--text2); line-height: 1.4; margin-bottom: 8px; }
-  .card-agents-list { font-size: 10px; color: var(--text3); }
-  .card-badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 10px; margin-bottom: 7px; }
+  main{ flex: 1; padding: 26px 24px 60px; }
+  .view{ display:none; }
+  .view.active{ display:block; animation: fadein .25s ease; }
+  @keyframes fadein{ from{opacity:0; transform: translateY(4px);} to{opacity:1; transform:translateY(0);} }
 
-  /* Avatar colors */
-  .av-lorenzo { background: var(--purple-bg); color: var(--purple); border: 1px solid var(--purple-light); }
-  .av-giada { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-light); }
-  .av-giovanni { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-light); }
-  .av-giancarlo { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-light); }
-  .av-francesca { background: #2a1a0f; color: #fb923c; border: 1px solid #3a2a10; }
-  .av-federica { background: #2a0f1f; color: #f472b6; border: 1px solid #3a1030; }
-  .av-fundraising { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-light); }
+  .section-label{
+    font-size: 12px; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--ink-faint);
+    font-weight:700; margin: 0 0 12px;
+  }
+  .section-label:not(:first-child){ margin-top: 30px; }
 
-  .badge-lorenzo { background: var(--purple-bg); color: var(--purple); }
-  .badge-giada { background: var(--green-bg); color: var(--green); }
-  .badge-giovanni { background: var(--blue-bg); color: var(--blue); }
-  .badge-giancarlo { background: var(--amber-bg); color: var(--amber); }
-  .badge-francesca { background: #2a1a0f; color: #fb923c; }
-  .badge-federica { background: #2a0f1f; color: #f472b6; }
-  .badge-fundraising { background: var(--green-bg); color: var(--green); }
-  .sel-lorenzo { border-color: var(--purple) !important; }
-  .sel-giada { border-color: var(--green) !important; }
-  .sel-giovanni { border-color: var(--blue) !important; }
-  .sel-giancarlo { border-color: var(--amber) !important; }
-  .sel-francesca { border-color: #fb923c !important; }
-  .sel-federica { border-color: #f472b6 !important; }
-  .sel-fundraising { border-color: var(--green) !important; }
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 14px;
+  }
+  .agent-card{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px; text-align:left; cursor:pointer;
+    display:flex; flex-direction:column; gap:10px;
+    transition: box-shadow .15s ease, transform .15s ease, border-color .15s ease;
+  }
+  .agent-card:hover{ box-shadow: var(--shadow-md); transform: translateY(-1px); border-color: #D6D5D0; }
+  .agent-card .row1{ display:flex; align-items:center; gap:12px; }
+  .avatar{
+    width: 44px; height:44px; border-radius: 50%;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; font-size:14px; flex-shrink:0;
+  }
+  .agent-card .who .name{ font-size: 14.5px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .agent-card .who .role{ font-size: 12px; color: var(--ink-soft); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .agent-list{ font-size: 12px; color: var(--ink-soft); line-height:1.5; }
+  .fund-badge{
+    display:inline-block; font-size: 10.5px; font-weight:700;
+    letter-spacing:.03em; padding: 3px 8px; border-radius: 999px; width: fit-content;
+  }
 
-  /* Chat */
-  .chat-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
-  .chat-head { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
-  .chat-head-av { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; flex-shrink: 0; }
-  .chat-head-name { font-size: 13px; font-weight: 500; color: var(--text); }
-  .chat-head-sub { font-size: 11px; color: var(--text3); }
-  .chat-actions { margin-left: auto; display: flex; gap: 6px; }
-  .chat-btn { background: none; border: 1px solid var(--border); color: var(--text2); border-radius: var(--radius-sm); padding: 4px 10px; font-size: 11px; cursor: pointer; }
-  .chat-btn:hover { border-color: var(--border2); color: var(--text); }
-  .chat-msgs { padding: 16px; min-height: 200px; max-height: 320px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
-  .msg { max-width: 85%; padding: 9px 13px; border-radius: var(--radius); font-size: 13px; line-height: 1.6; }
-  .msg-agent { background: var(--bg3); color: var(--text); align-self: flex-start; border: 1px solid var(--border); }
-  .msg-user { background: var(--purple-bg); color: var(--text); align-self: flex-end; border: 1px solid var(--purple-light); }
-  .msg-sys { background: var(--green-bg); color: var(--green); align-self: center; font-size: 11px; border: 1px solid var(--green-light); border-radius: 20px; padding: 4px 12px; max-width: 100%; text-align: center; }
-  .thinking { display: flex; gap: 5px; align-items: center; padding: 10px 14px; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); align-self: flex-start; }
-  .thinking span { width: 6px; height: 6px; border-radius: 50%; background: var(--text3); animation: bop .9s infinite; }
-  .thinking span:nth-child(2) { animation-delay: .15s; }
-  .thinking span:nth-child(3) { animation-delay: .3s; }
-  @keyframes bop { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-5px)} }
-  .chat-footer { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--border); }
-  .chat-input { flex: 1; background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-size: 13px; min-height: 38px; max-height: 90px; resize: none; padding: 8px 12px; border-radius: var(--radius-sm); font-family: var(--font); }
-  .chat-input:focus { outline: none; border-color: var(--border2); }
-  .send-btn { padding: 0 18px; font-size: 13px; font-weight: 500; cursor: pointer; height: 38px; align-self: flex-end; border-radius: var(--radius-sm); background: var(--purple-bg); border: 1px solid var(--purple-light); color: var(--purple); }
-  .send-btn:hover { background: var(--purple-light); }
-  .empty-chat { padding: 60px 20px; text-align: center; color: var(--text3); font-size: 13px; line-height: 1.7; }
+  .chat-shell{
+    background: var(--surface); border:1px solid var(--border);
+    border-radius: var(--radius-lg);
+    display:flex; flex-direction:column;
+    height: 64vh; min-height: 420px; overflow:hidden;
+  }
+  .chat-header{
+    display:flex; align-items:center; gap:12px;
+    padding: 14px 16px; border-bottom:1px solid var(--border);
+  }
+  .chat-header .who .name{ font-size:14.5px; font-weight:700; }
+  .chat-header .who .role{ font-size:12px; color:var(--ink-soft); }
+  .chat-header .spacer{ flex:1; }
+  .btn-ghost{
+    background:none; border:1px solid var(--border);
+    color: var(--ink-soft); font-size:12.5px; font-weight:600;
+    padding: 7px 12px; border-radius: 8px; cursor:pointer;
+  }
+  .btn-ghost:hover{ background: var(--bg); }
 
-  /* Save context modal */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: none; align-items: center; justify-content: center; z-index: 100; }
-  .modal-overlay.open { display: flex; }
-  .modal { background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--radius); padding: 20px; width: 90%; max-width: 520px; }
-  .modal-title { font-size: 14px; font-weight: 500; margin-bottom: 6px; }
-  .modal-sub { font-size: 12px; color: var(--text2); margin-bottom: 14px; }
-  .modal label { font-size: 11px; color: var(--text2); display: block; margin-bottom: 4px; }
-  .modal input, .modal textarea { width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius-sm); padding: 7px 10px; font-size: 12px; font-family: var(--font); margin-bottom: 10px; }
-  .modal textarea { min-height: 100px; resize: vertical; }
-  .modal-btns { display: flex; gap: 8px; justify-content: flex-end; }
-  .modal-btn { padding: 7px 16px; font-size: 12px; cursor: pointer; border-radius: var(--radius-sm); }
-  .modal-btn.cancel { background: none; border: 1px solid var(--border); color: var(--text2); }
-  .modal-btn.primary { background: var(--purple-bg); border: 1px solid var(--purple-light); color: var(--purple); }
-  .modal-btn.secondary { background: none; border: 1px solid var(--border); color: var(--text2); }
+  .chat-body{
+    flex:1; overflow-y:auto; padding: 18px 16px;
+    display:flex; flex-direction:column; gap: 12px;
+  }
+  .chat-empty{ margin:auto; text-align:center; color: var(--ink-faint); font-size: 13px; max-width: 320px; line-height:1.6; }
+  .bubble-row{ display:flex; }
+  .bubble-row.user{ justify-content:flex-end; }
+  .bubble{ max-width: 72%; padding: 10px 13px; border-radius: 14px; font-size: 13.6px; line-height:1.55; white-space: pre-wrap; word-wrap: break-word; }
+  .bubble-row.user .bubble{ background: var(--user-bubble); border-bottom-right-radius: 4px; }
+  .bubble-row.agent .bubble{ background: var(--agent-bubble); border-bottom-left-radius: 4px; }
+  .typing-dots{ display:flex; gap:4px; padding: 4px 2px; }
+  .typing-dots span{ width:6px; height:6px; border-radius:50%; background: var(--ink-faint); animation: bounce 1.2s infinite ease-in-out; }
+  .typing-dots span:nth-child(2){ animation-delay: .15s; }
+  .typing-dots span:nth-child(3){ animation-delay: .3s; }
+  @keyframes bounce{ 0%,60%,100%{ transform: translateY(0); opacity:.5; } 30%{ transform: translateY(-4px); opacity:1; } }
 
-  /* Flow */
-  .flow-section { margin-bottom: 18px; }
-  .flow-steps { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
-  .flow-row { display: flex; align-items: center; gap: 8px; }
-  .step-num { font-size: 11px; color: var(--text3); min-width: 54px; }
-  .flow-select { flex: 1; background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-size: 12px; padding: 6px 10px; border-radius: var(--radius-sm); }
-  .flow-controls { display: flex; gap: 6px; margin-bottom: 14px; }
-  .flow-ctrl { background: none; border: 1px solid var(--border); color: var(--text2); font-size: 11px; padding: 4px 12px; cursor: pointer; border-radius: var(--radius-sm); }
-  .flow-task { width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-size: 13px; min-height: 72px; resize: vertical; padding: 10px 12px; border-radius: var(--radius-sm); font-family: var(--font); }
-  .run-btn { padding: 9px 22px; font-size: 13px; font-weight: 500; cursor: pointer; border-radius: var(--radius-sm); background: var(--purple-bg); border: 1px solid var(--purple-light); color: var(--purple); margin-top: 12px; }
-  .run-btn:hover { background: var(--purple-light); }
-  .flow-log { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; font-size: 12px; font-family: var(--mono); color: var(--text2); min-height: 80px; max-height: 320px; overflow-y: auto; line-height: 1.8; margin-top: 14px; display: none; }
-  .log-head { color: var(--text); font-weight: 500; }
-  .log-ok { color: var(--green); }
-  .log-relay { color: var(--amber); }
-  .log-err { color: var(--red); }
-  .log-out { color: var(--text); font-family: var(--font); font-size: 12px; white-space: pre-wrap; margin-top: 6px; padding: 10px 12px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+  .chat-input-row{ display:flex; gap:10px; padding: 12px 14px; border-top: 1px solid var(--border); }
+  .chat-input-row textarea{
+    flex:1; resize:none; border:1px solid var(--border);
+    border-radius: 10px; padding: 10px 12px;
+    font-size: 13.6px; font-family: inherit;
+    line-height:1.5; max-height: 120px; min-height: 40px;
+  }
+  .chat-input-row textarea:focus{ outline:2px solid var(--accent-line); border-color:var(--accent); }
+  .btn-send{
+    background: var(--accent); color:#fff; border:none;
+    border-radius: 10px; padding: 0 18px;
+    font-weight:700; font-size: 13.5px; cursor:pointer; flex-shrink:0;
+  }
+  .btn-send:disabled{ opacity:.5; cursor:not-allowed; }
+  .btn-send:hover:not(:disabled){ background:#332C77; }
+  .chat-picker{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius-lg); padding: 40px 20px; text-align:center; color: var(--ink-soft); font-size: 13.5px; }
 
-  /* Fundraising routine */
-  .stepper { display: flex; align-items: center; margin-bottom: 22px; }
-  .step-item { display: flex; flex-direction: column; align-items: center; flex: 1; position: relative; }
-  .step-item:not(:last-child)::after { content: ''; position: absolute; top: 13px; left: 55%; width: 90%; height: 1px; background: var(--border); z-index: 0; }
-  .step-circle { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 500; z-index: 1; border: 1px solid var(--border); background: var(--bg2); color: var(--text3); transition: all .3s; }
-  .step-circle.active { background: var(--purple-bg); border-color: var(--purple); color: var(--purple); }
-  .step-circle.done { background: var(--green-bg); border-color: var(--green); color: var(--green); }
-  .step-lbl { font-size: 10px; color: var(--text3); margin-top: 5px; text-align: center; max-width: 70px; line-height: 1.3; }
-  .step-lbl.active { color: var(--text); }
-  .step-lbl.done { color: var(--green); }
+  .flow-config{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; margin-bottom: 18px; }
+  .flow-steps{ display:flex; flex-wrap:wrap; gap: 10px; margin-bottom: 14px; }
+  .flow-step{ display:flex; align-items:center; gap:8px; background: var(--bg); border:1px solid var(--border); border-radius: 10px; padding: 8px 10px 8px 8px; }
+  .flow-step select{ border:none; background:none; font-size:13px; font-weight:600; font-family:inherit; color:var(--ink); cursor:pointer; max-width: 190px; }
+  .flow-step .mini-avatar{ width:24px;height:24px;border-radius:50%; font-size:10px; font-weight:700; display:flex;align-items:center;justify-content:center; flex-shrink:0; }
+  .flow-step .remove-step{ border:none; background:none; color: var(--ink-faint); cursor:pointer; font-size:15px; line-height:1; padding:0 2px; }
+  .flow-step .remove-step:hover{ color: var(--error); }
+  .flow-arrow{ color: var(--ink-faint); align-self:center; font-size:16px; }
+  .add-step-btn{ background:none; border:1px dashed var(--ink-faint); color: var(--ink-soft); border-radius:10px; padding: 8px 14px; font-size:13px; font-weight:600; cursor:pointer; }
+  .add-step-btn:hover{ border-color: var(--accent); color: var(--accent); }
+  .flow-task{ width:100%; border:1px solid var(--border); border-radius: 10px; padding: 11px 13px; font-size: 13.6px; font-family: inherit; resize: vertical; min-height: 70px; margin-bottom: 14px; }
+  .flow-task:focus{ outline:2px solid var(--accent-line); border-color:var(--accent); }
+  .btn-primary{ background: var(--accent); color:#fff; border:none; border-radius: 10px; padding: 10px 20px; font-weight:700; font-size: 13.6px; cursor:pointer; }
+  .btn-primary:disabled{ opacity:.5; cursor:not-allowed; }
+  .btn-primary:hover:not(:disabled){ background:#332C77; }
+  .terminal{ background: #1C1C1A; border-radius: var(--radius-lg); padding: 16px 18px; font-family: "SF Mono", "Consolas", "Menlo", monospace; font-size: 12.5px; line-height: 1.7; color: #E4E3DF; min-height: 160px; max-height: 460px; overflow-y:auto; white-space: pre-wrap; word-wrap: break-word; }
+  .term-line{ margin:0 0 2px; }
+  .term-normal{ color:#E4E3DF; }
+  .term-success{ color:#7EDBA0; }
+  .term-relay{ color:#F0CB6A; }
+  .term-error{ color:#F0897A; }
+  .term-muted{ color:#8A8A84; }
 
-  .fr-phase { display: none; }
-  .fr-phase.active { display: block; }
-  .fr-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 12px; }
-  .fr-card-title { font-size: 13px; font-weight: 500; margin-bottom: 10px; }
-  .check-group { display: flex; flex-direction: column; gap: 8px; }
-  .check-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text); cursor: pointer; }
-  .check-row input { accent-color: var(--purple); width: 15px; height: 15px; flex-shrink: 0; }
-  .fr-textarea { width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-size: 12px; min-height: 56px; resize: vertical; padding: 8px 10px; border-radius: var(--radius-sm); font-family: var(--font); }
-  .start-fr-btn { padding: 9px 22px; font-size: 13px; font-weight: 500; cursor: pointer; border-radius: var(--radius-sm); background: var(--purple-bg); border: 1px solid var(--purple-light); color: var(--purple); margin-top: 4px; }
+  /* ===== FUNDRAISING ROUTINE ===== */
+  .fr-wrap{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; }
+  .fr-stepper{ display:flex; align-items:flex-start; margin-bottom:28px; }
+  .fr-step-item{ display:flex; flex-direction:column; align-items:center; flex:1; position:relative; }
+  .fr-step-item:not(:last-child)::after{ content:''; position:absolute; top:13px; left:55%; width:90%; height:1px; background: var(--border); z-index:0; }
+  .fr-step-circle{ width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; z-index:1; border:1px solid var(--border); background: var(--surface); color: var(--ink-faint); transition: all .3s; }
+  .fr-step-circle.active{ background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+  .fr-step-circle.done{ background: #E8F5EE; border-color: var(--success); color: var(--success); }
+  .fr-step-label{ font-size:10px; color: var(--ink-faint); margin-top:5px; text-align:center; max-width:70px; line-height:1.3; }
+  .fr-step-label.active{ color: var(--ink); font-weight:700; }
+  .fr-step-label.done{ color: var(--success); }
 
-  /* Bando cards */
-  .bandi-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
-  .bando-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; cursor: pointer; transition: all .15s; display: flex; gap: 12px; align-items: flex-start; }
-  .bando-card:hover { border-color: var(--border2); }
-  .bando-card.selected { border-color: var(--purple); background: var(--purple-bg); }
-  .bando-check { accent-color: var(--purple); width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; cursor: pointer; }
-  .bando-body { flex: 1; }
-  .bando-name { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
-  .bando-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
-  .bando-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; }
-  .tag-bando { background: var(--blue-bg); color: var(--blue); }
-  .tag-csr { background: var(--amber-bg); color: var(--amber); }
-  .tag-alta { background: var(--green-bg); color: var(--green); }
-  .tag-media { background: #2a1f0a; color: var(--amber); }
-  .bando-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
-  .bando-meta { font-size: 11px; color: var(--text3); margin-top: 4px; }
-  .fr-action-bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid var(--border); }
-  .fr-sel-count { font-size: 12px; color: var(--text2); }
-  .fr-next-btn { padding: 8px 18px; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: var(--radius-sm); background: var(--purple-bg); border: 1px solid var(--purple-light); color: var(--purple); }
-  .fr-next-btn:disabled { opacity: .35; cursor: not-allowed; }
-  .fr-output { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; font-size: 13px; color: var(--text); line-height: 1.7; margin-bottom: 14px; white-space: pre-wrap; }
-  .fr-loading { display: flex; align-items: center; gap: 10px; padding: 16px; color: var(--text2); font-size: 13px; }
+  .fr-phase{ display:none; }
+  .fr-phase.active{ display:block; }
+  .fr-card{ background: var(--bg); border:1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; margin-bottom:14px; }
+  .fr-card-title{ font-size:13px; font-weight:700; margin-bottom:10px; }
+  .fr-check-group{ display:flex; flex-direction:column; gap:9px; }
+  .fr-check-row{ display:flex; align-items:center; gap:10px; font-size:13.5px; color: var(--ink); cursor:pointer; }
+  .fr-check-row input{ accent-color: var(--accent); width:15px; height:15px; flex-shrink:0; }
+  .fr-textarea{ width:100%; border:1px solid var(--border); border-radius: 10px; padding: 10px 12px; font-size: 13px; font-family:inherit; resize:vertical; min-height:60px; }
+  .fr-textarea:focus{ outline:2px solid var(--accent-line); border-color:var(--accent); }
 
-  /* Guide */
-  .guide-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 12px; }
-  .guide-title { font-size: 13px; font-weight: 500; margin-bottom: 12px; }
-  .guide-step { display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start; }
-  .guide-num { width: 22px; height: 22px; border-radius: 50%; background: var(--purple-bg); border: 1px solid var(--purple-light); color: var(--purple); font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-  .guide-text { font-size: 13px; color: var(--text); line-height: 1.55; }
-  .guide-text small { display: block; font-size: 11px; color: var(--text3); margin-top: 2px; }
-  .folder-tree { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; font-family: var(--mono); font-size: 12px; color: var(--text2); line-height: 1.9; margin-top: 8px; }
+  .bandi-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:16px; }
+  .bando-card{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius); padding: 13px 15px; cursor:pointer; transition: all .15s; display:flex; gap:12px; align-items:flex-start; }
+  .bando-card:hover{ border-color: #D6D5D0; box-shadow: var(--shadow-sm); }
+  .bando-card.selected{ border-color: var(--accent); background: var(--accent-soft); }
+  .bando-check{ accent-color: var(--accent); width:16px; height:16px; flex-shrink:0; margin-top:2px; cursor:pointer; }
+  .bando-body{ flex:1; }
+  .bando-name{ font-size:13.5px; font-weight:700; color: var(--ink); margin-bottom:5px; }
+  .bando-tags{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+  .bando-tag{ font-size:10.5px; padding:2px 9px; border-radius:999px; font-weight:600; }
+  .tag-bando{ background:#E6F1FB; color:#0C447C; }
+  .tag-csr{ background:#FAEEDA; color:#633806; }
+  .tag-alta{ background:#E8F5EE; color:#1B5E20; }
+  .tag-media{ background:#FEF3CD; color:#856404; }
+  .bando-desc{ font-size:12.5px; color: var(--ink-soft); line-height:1.5; }
+  .bando-meta{ font-size:11.5px; color: var(--ink-faint); margin-top:5px; }
 
-  /* Settings */
-  .settings-wrap { max-width: 500px; }
-  .settings-section { margin-bottom: 20px; }
-  .settings-section-title { font-size: 12px; font-weight: 500; color: var(--text2); margin-bottom: 10px; }
-  .settings-row { margin-bottom: 10px; }
-  .settings-row label { font-size: 11px; color: var(--text3); display: block; margin-bottom: 4px; }
-  .settings-input { width: 100%; background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-size: 12px; padding: 7px 10px; border-radius: var(--radius-sm); font-family: var(--mono); }
-  .settings-input:focus { outline: none; border-color: var(--border2); }
-  .settings-hint { font-size: 11px; color: var(--text3); margin-top: 3px; line-height: 1.5; }
-  .settings-save { padding: 8px 20px; font-size: 13px; cursor: pointer; border-radius: var(--radius-sm); background: var(--purple-bg); border: 1px solid var(--purple-light); color: var(--purple); font-weight: 500; }
-  .settings-drive-status { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text2); margin-top: 8px; }
+  .fr-action-bar{ display:flex; align-items:center; justify-content:space-between; padding:14px 0 2px; border-top:1px solid var(--border); margin-top:4px; }
+  .fr-sel-count{ font-size:13px; color: var(--ink-soft); }
+  .fr-output{ background: var(--bg); border:1px solid var(--border); border-radius: var(--radius); padding:16px 18px; font-size:13.3px; line-height:1.7; white-space:pre-wrap; margin-bottom:14px; color: var(--ink); }
+  .fr-loading{ display:flex; align-items:center; gap:10px; padding:20px; color: var(--ink-soft); font-size:13.5px; }
+
+  .guide{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius-lg); padding: 26px 28px; max-width: 760px; }
+  .guide h2{ font-size:16px; margin: 0 0 4px; }
+  .guide .lead{ color: var(--ink-soft); font-size:13.5px; margin: 0 0 24px; }
+  .guide-step{ display:flex; gap:14px; padding: 16px 0; border-top: 1px solid var(--border); }
+  .guide-step:first-of-type{ border-top:none; }
+  .guide-step .num{ width:26px; height:26px; border-radius:50%; background: var(--accent-soft); color: var(--accent); font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .guide-step h3{ font-size: 14px; margin: 2px 0 4px; }
+  .guide-step p{ font-size: 13.3px; color: var(--ink-soft); margin:0; line-height:1.6; }
+  .guide-note{ margin-top: 20px; background: var(--accent-soft); border:1px solid var(--accent-line); border-radius: 10px; padding: 12px 14px; font-size: 13px; color: var(--ink); line-height:1.55; }
+  .tree{ font-family: "SF Mono", "Consolas", "Menlo", monospace; font-size: 12.5px; line-height: 1.9; background: var(--bg); border:1px solid var(--border); border-radius: 10px; padding: 14px 16px; overflow-x:auto; white-space:pre; }
+  .tree .agent-tag{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; color: var(--ink-faint); }
+
+  @media (max-width: 640px){
+    header.top{ padding: 18px 16px 14px; }
+    nav.tabs{ padding: 14px 16px 0; }
+    nav.tabs button{ padding: 8px 10px 12px; }
+    main{ padding: 20px 16px 50px; }
+    .status-pill span.label{ display:none; }
+    .chat-shell{ height: 70vh; }
+    .bubble{ max-width: 85%; }
+    .guide{ padding: 20px; }
+  }
+
+  .header-actions{ margin-left:auto; display:flex; align-items:center; gap:8px; }
+  .drive-pill{ display:flex; align-items:center; gap:7px; font-size:12px; color: var(--ink-soft); background: var(--surface); border:1px solid var(--border); padding: 6px 11px; border-radius: 999px; cursor:pointer; }
+  .drive-pill:hover{ border-color:#D6D5D0; }
+  .drive-pill .drive-dot{ width:7px; height:7px; border-radius:50%; background: var(--ink-faint); flex-shrink:0; }
+  .drive-pill.connected .drive-dot{ background: var(--success); }
+  .icon-btn{ width:32px; height:32px; border-radius: 50%; border:1px solid var(--border); background: var(--surface); color: var(--ink-soft); cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; }
+  .icon-btn:hover{ border-color:#D6D5D0; color:var(--ink); }
+
+  .modal-overlay{ position:fixed; inset:0; background: rgba(28,28,26,0.45); display:flex; align-items:center; justify-content:center; z-index: 100; padding: 20px; }
+  .modal-overlay.hidden{ display:none; }
+  .modal{ background: var(--surface); border-radius: var(--radius-lg); width: 100%; max-width: 560px; max-height: 86vh; display:flex; flex-direction:column; overflow:hidden; box-shadow: var(--shadow-md); }
+  .modal-head{ padding: 18px 20px 14px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; gap:10px; }
+  .modal-head .titles{ flex:1; min-width:0; }
+  .modal-head h3{ margin:0 0 3px; font-size:15.5px; }
+  .modal-head p{ margin:0; font-size:12.5px; color:var(--ink-soft); line-height:1.5; }
+  .modal-close{ background:none; border:none; color:var(--ink-faint); font-size:18px; cursor:pointer; line-height:1; padding:2px; }
+  .modal-body{ padding: 18px 20px; overflow-y:auto; display:flex; flex-direction:column; gap:14px; }
+  .field label{ display:block; font-size:12px; font-weight:700; color: var(--ink-soft); margin-bottom:6px; text-transform:uppercase; letter-spacing:.04em; }
+  .field input[type="text"], .field select{ width:100%; border:1px solid var(--border); border-radius: 8px; padding: 9px 11px; font-size: 13.5px; font-family: inherit; }
+  .field input:focus, .field select:focus{ outline:2px solid var(--accent-line); border-color:var(--accent); }
+  .field .hint{ font-size:11.5px; color:var(--ink-faint); margin-top:5px; line-height:1.5; }
+  .context-textarea{ width:100%; min-height: 220px; border:1px solid var(--border); border-radius: 10px; padding: 12px 13px; font-size: 13px; font-family: "SF Mono", "Consolas", "Menlo", monospace; line-height:1.6; resize: vertical; }
+  .context-textarea:focus{ outline:2px solid var(--accent-line); border-color:var(--accent); }
+  .modal-foot{ padding: 14px 20px; border-top:1px solid var(--border); display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; }
+  .modal-status{ font-size:12.5px; padding: 0 20px 4px; color: var(--ink-soft); }
+  .modal-status.success{ color: var(--success); }
+  .modal-status.error{ color: var(--error); }
+  .folder-target{ display:flex; align-items:center; gap:8px; font-size:12.5px; background: var(--bg); border:1px solid var(--border); border-radius: 8px; padding: 9px 11px; color: var(--ink-soft); }
+  .folder-target strong{ color: var(--ink); font-weight:700; }
+  .spinner-inline{ display:inline-block; width:12px; height:12px; border:2px solid var(--border); border-top-color: var(--accent); border-radius:50%; animation: spin .7s linear infinite; margin-right:6px; vertical-align:-1px; }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  button:focus-visible, textarea:focus-visible, select:focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce){ *{ animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition: none !important; } }
 </style>
 </head>
 <body>
+
 <div class="app">
 
-  <!-- Header -->
-  <div class="header">
-    <div class="logo">
-      <div class="logo-mark">A</div>
-      <div class="logo-text">
-        <div class="name">Archimedu Agent System</div>
-        <div class="sub">Fondazione Archimedu ETS</div>
+  <header class="top">
+    <div class="logo-mark">A</div>
+    <div class="brand-text">
+      <h1>Archimedu Agent System</h1>
+      <p>Fondazione Archimedu ETS</p>
+    </div>
+    <div class="status-pill"><span class="dot"></span><span class="label">Sistema attivo</span></div>
+    <div class="header-actions">
+      <div class="drive-pill" id="drivePill" onclick="openDriveSetupModal()" title="Stato connessione Google Drive">
+        <span class="drive-dot" id="driveDot"></span>
+        <span id="drivePillLabel">Drive non connesso</span>
       </div>
+      <button class="icon-btn" onclick="openDriveSetupModal()" title="Impostazioni">⚙</button>
     </div>
-    <div style="display:flex;align-items:center;gap:12px;">
-      <div class="status"><span class="dot"></span>Sistema attivo</div>
-      <div class="drive-status" id="drive-status-hdr" onclick="switchTab('settings')">
-        <span class="drive-dot" id="drive-dot-hdr"></span>
-        <span id="drive-label-hdr">Drive non connesso</span>
+  </header>
+
+  <div class="welcome-banner" id="welcomeBanner">
+    <p>
+      <strong>Benvenuto nel sistema agenti di Archimedu</strong>
+      Ogni membro della fondazione ha un proprio agente AI dedicato al proprio ruolo. Scegli un agente nella tab "Agenti" per iniziare una conversazione, oppure vai su "Flusso inter-agente" per far collaborare più agenti su uno stesso task.
+    </p>
+    <button onclick="dismissBanner()">Chiudi</button>
+  </div>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="agenti">Agenti</button>
+    <button class="tab-btn" data-tab="chat">Chat</button>
+    <button class="tab-btn" data-tab="flusso">Flusso inter-agente</button>
+    <button class="tab-btn" data-tab="fundraising">Routine Fundraising</button>
+    <button class="tab-btn" data-tab="guida">Guida</button>
+  </nav>
+
+  <main>
+
+    <!-- TAB 1: AGENTI -->
+    <section class="view active" id="view-agenti">
+      <p class="section-label">Agenti della fondazione</p>
+      <div class="grid" id="grid-fondazione"></div>
+      <p class="section-label">Agenti del CdA e staff</p>
+      <div class="grid" id="grid-staff"></div>
+    </section>
+
+    <!-- TAB 2: CHAT -->
+    <section class="view" id="view-chat">
+      <div id="chatPickerWrap"></div>
+    </section>
+
+    <!-- TAB 3: FLUSSO -->
+    <section class="view" id="view-flusso">
+      <div class="flow-config">
+        <p class="section-label" style="margin-top:0;">Sequenza agenti (2–4 passaggi)</p>
+        <div class="flow-steps" id="flowSteps"></div>
+        <button class="add-step-btn" id="addStepBtn" onclick="addFlowStep()">+ Aggiungi passaggio</button>
+        <p class="section-label">Task da elaborare</p>
+        <textarea class="flow-task" id="flowTask" placeholder="Descrivi il task da passare al primo agente della sequenza…"></textarea>
+        <button class="btn-primary" id="runFlowBtn" onclick="runFlow()">Esegui flusso</button>
       </div>
-      <button class="settings-btn" onclick="switchTab('settings')">⚙ Impostazioni</button>
-    </div>
-  </div>
+      <p class="section-label">Log di esecuzione</p>
+      <div class="terminal" id="flowTerminal"><p class="term-line term-muted">In attesa di esecuzione…</p></div>
+    </section>
 
-  <!-- Tabs -->
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('agents')">Agenti</div>
-    <div class="tab" onclick="switchTab('chat')">Chat</div>
-    <div class="tab" onclick="switchTab('flow')">Flusso inter-agente</div>
-    <div class="tab" onclick="switchTab('fundraising')">Routine Fundraising</div>
-    <div class="tab" onclick="switchTab('guide')">Guida</div>
-  </div>
+    <!-- TAB 4: FUNDRAISING ROUTINE -->
+    <section class="view" id="view-fundraising">
+      <div class="fr-wrap">
+        <p style="font-size:13px;color:var(--ink-soft);margin:0 0 20px;">Routine di monitoraggio e candidatura · Agente Fundraising · Referente: Lorenzo Lorenzi</p>
 
-  <!-- AGENTI -->
-  <div class="panel active" id="panel-agents">
-    <div class="section-label" style="margin-bottom:12px;">Agenti della fondazione</div>
-    <div class="agent-grid" id="grid-fondazione"></div>
-    <div class="section-label" style="margin-bottom:12px;margin-top:4px;">Agenti del CdA e staff</div>
-    <div class="agent-grid" id="grid-cda"></div>
-  </div>
-
-  <!-- CHAT -->
-  <div class="panel" id="panel-chat">
-    <div id="empty-chat-msg" class="empty-chat">
-      ← Vai su <strong>Agenti</strong> e seleziona un membro<br>per aprire la chat con il suo agente.
-    </div>
-    <div id="chat-area" style="display:none;">
-      <div class="chat-wrap">
-        <div class="chat-head">
-          <div class="chat-head-av" id="ch-av"></div>
-          <div>
-            <div class="chat-head-name" id="ch-name"></div>
-            <div class="chat-head-sub" id="ch-sub"></div>
+        <!-- Stepper -->
+        <div class="fr-stepper">
+          <div class="fr-step-item">
+            <div class="fr-step-circle active" id="frsc0">1</div>
+            <div class="fr-step-label active" id="frsl0">Configura</div>
           </div>
-          <div class="chat-actions">
-            <button class="chat-btn" onclick="saveContext()">💾 Salva contesto</button>
-            <button class="chat-btn" onclick="clearChat()">↺ Nuova chat</button>
+          <div class="fr-step-item">
+            <div class="fr-step-circle" id="frsc1">2</div>
+            <div class="fr-step-label" id="frsl1">Opportunità</div>
+          </div>
+          <div class="fr-step-item">
+            <div class="fr-step-circle" id="frsc2">3</div>
+            <div class="fr-step-label" id="frsl2">Screening</div>
+          </div>
+          <div class="fr-step-item">
+            <div class="fr-step-circle" id="frsc3">4</div>
+            <div class="fr-step-label" id="frsl3">Bozza</div>
           </div>
         </div>
-        <div class="chat-msgs" id="chat-msgs"></div>
-        <div class="chat-footer">
-          <textarea class="chat-input" id="chat-input" placeholder="Scrivi all'agente…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"></textarea>
-          <button class="send-btn" onclick="sendMsg()">Invia ↗</button>
+
+        <!-- Fase 0: Config -->
+        <div class="fr-phase active" id="fr-phase-0">
+          <div class="fr-card">
+            <div class="fr-card-title">Aree di ricerca</div>
+            <div class="fr-check-group">
+              <label class="fr-check-row"><input type="checkbox" id="frAreaBandi" checked> Bandi pubblici e fondazioni (Cariplo, Regione Lombardia, PNRR, Ministero del Lavoro)</label>
+              <label class="fr-check-row"><input type="checkbox" id="frAreaCsr" checked> CSR Corporate (aziende con programmi educazione / innovazione sociale in Lombardia)</label>
+              <label class="fr-check-row"><input type="checkbox" id="frAreaEu"> Bandi europei (Erasmus+, Horizon Europe, EaSI)</label>
+            </div>
+          </div>
+          <div class="fr-card">
+            <div class="fr-card-title">Contesto aggiuntivo (opzionale)</div>
+            <textarea class="fr-textarea" id="frContext" placeholder="Es: siamo in fase di sviluppo della valuta Edu, abbiamo un progetto attivo al Buon Pastore a Milano, budget operativo limitato…"></textarea>
+          </div>
+          <button class="btn-primary" onclick="frPhase1()">▶ Avvia ricerca opportunità</button>
+        </div>
+
+        <!-- Fase 1: Opportunità -->
+        <div class="fr-phase" id="fr-phase-1">
+          <p style="font-size:13.5px;font-weight:700;margin:0 0 4px;">Opportunità identificate</p>
+          <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;">Seleziona le opportunità che vuoi approfondire. L'agente procederà solo con i bandi che flagghi.</p>
+          <div class="bandi-list" id="frBandiList"></div>
+          <div class="fr-action-bar">
+            <span class="fr-sel-count" id="frSelCount">0 selezionati</span>
+            <button class="btn-primary" id="frBtnScreening" onclick="frPhase2()" disabled>Screening selezionati →</button>
+          </div>
+        </div>
+
+        <!-- Fase 2: Screening -->
+        <div class="fr-phase" id="fr-phase-2">
+          <p style="font-size:13.5px;font-weight:700;margin:0 0 4px;">Screening di candidabilità</p>
+          <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;">Analisi dei bandi selezionati rispetto alla missione e ai requisiti di Archimedu.</p>
+          <div id="frScreeningOutput"></div>
+          <div class="fr-action-bar" id="frScreeningBar" style="display:none;">
+            <span class="fr-sel-count">Vuoi procedere con la bozza?</span>
+            <button class="btn-primary" onclick="frPhase3()">Prepara bozza →</button>
+          </div>
+        </div>
+
+        <!-- Fase 3: Bozza -->
+        <div class="fr-phase" id="fr-phase-3">
+          <p style="font-size:13.5px;font-weight:700;margin:0 0 4px;">Bozza di candidatura</p>
+          <p style="font-size:12.5px;color:var(--ink-soft);margin:0 0 16px;">Bozza narrativa e struttura della domanda per il bando con priorità più alta.</p>
+          <div id="frBozzaOutput"></div>
+          <div class="fr-action-bar" id="frBozzaBar" style="display:none;">
+            <button class="btn-ghost" onclick="frReset()">↺ Nuova ricerca</button>
+            <button class="btn-primary" onclick="frSaveContext()">💾 Salva contesto su Drive</button>
+          </div>
         </div>
       </div>
-      <div style="margin-top:6px;font-size:11px;color:var(--text3);">Le conversazioni restano nella tua sessione. Usa "Salva contesto" per conservarle su Drive.</div>
-    </div>
-  </div>
+    </section>
 
-  <!-- FLUSSO -->
-  <div class="panel" id="panel-flow">
-    <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">Seleziona 2–4 agenti in sequenza. L'output di ciascuno diventa l'input del successivo.</div>
-    <div class="flow-section">
-      <div class="section-label">Sequenza agenti</div>
-      <div class="flow-steps" id="flow-steps"></div>
-      <div class="flow-controls">
-        <button class="flow-ctrl" onclick="addStep()">+ Aggiungi passaggio</button>
-        <button class="flow-ctrl" onclick="removeStep()">− Rimuovi passaggio</button>
+    <!-- TAB 5: GUIDA -->
+    <section class="view" id="view-guida">
+      <div class="guide">
+        <h2>Come usare il sistema agenti</h2>
+        <p class="lead">Una guida rapida per i membri di Fondazione Archimedu ETS.</p>
+        <div class="guide-step"><div class="num">1</div><div><h3>Scegli il tuo agente</h3><p>Nella tab "Agenti" trovi una card per ciascun membro della fondazione, più l'Agente Fundraising della fondazione. Clic sulla tua card per aprire la chat dedicata.</p></div></div>
+        <div class="guide-step"><div class="num">2</div><div><h3>Conversa liberamente</h3><p>Scrivi il tuo messaggio e premi Invio o "Invia". L'agente risponde secondo il tuo ruolo e il contesto della fondazione. La cronologia resta visibile per tutta la sessione; usa "Nuova chat" per ripartire da zero.</p></div></div>
+        <div class="guide-step"><div class="num">3</div><div><h3>Fai collaborare più agenti</h3><p>Nella tab "Flusso inter-agente" scegli da 2 a 4 agenti in sequenza e inserisci un task. L'output di ogni agente viene passato automaticamente al successivo.</p></div></div>
+        <div class="guide-step"><div class="num">4</div><div><h3>Routine Fundraising</h3><p>Nella tab dedicata puoi avviare la ricerca guidata di bandi e CSR: seleziona le aree di interesse, flagga le opportunità rilevanti, esegui lo screening e genera la bozza di candidatura. Al termine puoi salvare il contesto su Drive.</p></div></div>
+        <div class="guide-step"><div class="num">5</div><div><h3>Configura il proxy Claude (una tantum)</h3><p>L'app usa un proxy Google Apps Script che custodisce la chiave API. Inserisci URL e token nelle Impostazioni (⚙).</p></div></div>
+        <div class="guide-step"><div class="num">6</div><div><h3>Salva il contesto su Google Drive</h3><p>Al termine di ogni conversazione o flusso, il sistema propone di generare una nota di sintesi e salvarla nella cartella Drive dedicata all'agente.</p></div></div>
+        <div class="guide-step"><div class="num">7</div><div><h3>Collega Google Drive (una tantum)</h3><p>Clic sull'icona ⚙, incolla l'ID Client OAuth Google e premi "Salva impostazioni e connetti Drive". Da quel momento il pallino diventa verde.</p></div></div>
+        <div class="guide-step"><div class="num">8</div><div><h3>Aggiorna il contesto della fondazione</h3><p>L'Agente Contesto mantiene aggiornato il documento di riferimento usato da tutti gli agenti. Apri la sua chat, premi "Carica contesto attuale" per importare l'ultima versione da Drive.</p></div></div>
+        <div class="guide-note">Pubblicazione e proxy: le istruzioni complete per pubblicare l'app su GitHub Pages e creare il proxy Google Apps Script sono nel documento separato "Guida alla pubblicazione".</div>
+        <p class="section-label">Alberatura cartelle Drive</p>
+        <div class="tree">05_Agenti_AI
+├── 01_Fundraising              <span class="agent-tag">← Agente Fundraising (fondazione)</span>
+├── 02_Legal                    <span class="agent-tag">← Francesca Menaldo</span>
+├── 03_Onboarding_Scuole        <span class="agent-tag">← Giada Bono</span>
+├── 04_Edu_Currency             <span class="agent-tag">← Giancarlo Giuffra</span>
+├── 05_Endowment_Patrimonio     <span class="agent-tag">← Giovanni Pozzi</span>
+├── 06_Context_Agent            <span class="agent-tag">← Agente Contesto (fondazione) e flussi inter-agente</span>
+├── 07_Comunicazione_Buon_Pastore <span class="agent-tag">← Federica Gabardi</span>
+└── 08_Direttivo_Strategico     <span class="agent-tag">← Lorenzo Lorenzi</span></div>
+        <div class="guide-note">Nota: le conversazioni restano visibili solo nella sessione del browser finché non vengono salvate. Chiudendo la scheda senza salvare, la cronologia va persa.</div>
       </div>
-    </div>
-    <div class="section-label">Task da elaborare</div>
-    <textarea class="flow-task" id="flow-task" placeholder="Es: Prepara una comunicazione per i genitori del Buon Pastore sul progetto Edu, verifica gli aspetti legali e presenta la versione finale…"></textarea>
-    <button class="run-btn" onclick="runFlow()">▶ Esegui flusso</button>
-    <div class="flow-log" id="flow-log">Log di esecuzione</div>
-  </div>
+    </section>
 
-  <!-- FUNDRAISING ROUTINE -->
-  <div class="panel" id="panel-fundraising">
-    <div style="font-size:12px;color:var(--text2);margin-bottom:18px;">Routine di monitoraggio e candidatura — Agente Fundraising · Referente: Lorenzo Lorenzi</div>
+  </main>
+</div>
 
-    <!-- Stepper -->
-    <div class="stepper">
-      <div class="step-item"><div class="step-circle active" id="sc0">1</div><div class="step-lbl active" id="sl0">Configura</div></div>
-      <div class="step-item"><div class="step-circle" id="sc1">2</div><div class="step-lbl" id="sl1">Opportunità</div></div>
-      <div class="step-item"><div class="step-circle" id="sc2">3</div><div class="step-lbl" id="sl2">Screening</div></div>
-      <div class="step-item"><div class="step-circle" id="sc3">4</div><div class="step-lbl" id="sl3">Bozza</div></div>
-    </div>
-
-    <!-- Fase 0: Config -->
-    <div class="fr-phase active" id="fr-phase-0">
-      <div class="fr-card">
-        <div class="fr-card-title">Aree di ricerca</div>
-        <div class="check-group">
-          <label class="check-row"><input type="checkbox" id="area-bandi" checked> Bandi pubblici e fondazioni (Cariplo, Regione Lombardia, PNRR, Ministero del Lavoro)</label>
-          <label class="check-row"><input type="checkbox" id="area-csr" checked> CSR Corporate (aziende con programmi educazione / innovazione sociale in Lombardia)</label>
-          <label class="check-row"><input type="checkbox" id="area-eu"> Bandi europei (Erasmus+, Horizon Europe, EaSI)</label>
-        </div>
-      </div>
-      <div class="fr-card">
-        <div class="fr-card-title">Contesto aggiuntivo (opzionale)</div>
-        <textarea class="fr-textarea" id="fr-context" placeholder="Es: siamo in fase di sviluppo della valuta Edu, abbiamo un progetto attivo al Buon Pastore a Milano, budget operativo limitato…"></textarea>
-      </div>
-      <button class="start-fr-btn" onclick="frPhase1()">▶ Avvia ricerca opportunità</button>
-    </div>
-
-    <!-- Fase 1: Opportunità -->
-    <div class="fr-phase" id="fr-phase-1">
-      <div style="font-size:13px;font-weight:500;margin-bottom:6px;">Opportunità identificate</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:14px;">Seleziona le opportunità che vuoi approfondire. L'agente proseguirà solo con i bandi che flagghi.</div>
-      <div class="bandi-list" id="bandi-list"></div>
-      <div class="fr-action-bar">
-        <span class="fr-sel-count" id="fr-sel-count">0 selezionati</span>
-        <button class="fr-next-btn" id="btn-screening" onclick="frPhase2()" disabled>Screening selezionati →</button>
-      </div>
-    </div>
-
-    <!-- Fase 2: Screening -->
-    <div class="fr-phase" id="fr-phase-2">
-      <div style="font-size:13px;font-weight:500;margin-bottom:6px;">Screening di candidabilità</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:14px;">Analisi dei bandi selezionati rispetto alla missione e ai requisiti di Archimedu.</div>
-      <div id="fr-screening-output"></div>
-      <div class="fr-action-bar" id="fr-screening-bar" style="display:none;">
-        <span class="fr-sel-count">Vuoi procedere con la bozza?</span>
-        <button class="fr-next-btn" onclick="frPhase3()">Prepara bozza →</button>
-      </div>
-    </div>
-
-    <!-- Fase 3: Bozza -->
-    <div class="fr-phase" id="fr-phase-3">
-      <div style="font-size:13px;font-weight:500;margin-bottom:6px;">Bozza di candidatura</div>
-      <div style="font-size:12px;color:var(--text2);margin-bottom:14px;">Bozza narrativa e struttura della domanda per i bandi idonei.</div>
-      <div id="fr-bozza-output"></div>
-      <div class="fr-action-bar" id="fr-bozza-bar" style="display:none;">
-        <span class="fr-sel-count">Sessione completata</span>
-        <div style="display:flex;gap:8px;">
-          <button class="fr-next-btn" onclick="frSaveDrive()">💾 Salva su Drive</button>
-          <button class="fr-next-btn" onclick="frReset()" style="background:none;color:var(--text2);border-color:var(--border);">↺ Nuova ricerca</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- GUIDA -->
-  <div class="panel" id="panel-guide">
-    <div class="guide-card">
-      <div class="guide-title">Come usare il sistema agenti</div>
-      <div class="guide-step"><div class="guide-num">1</div><div class="guide-text">Scegli il tuo agente<small>Nella tab "Agenti" trovi una card per ciascun membro. Clic sulla card per aprire la chat dedicata.</small></div></div>
-      <div class="guide-step"><div class="guide-num">2</div><div class="guide-text">Conversa liberamente<small>Scrivi e premi Invio. L'agente risponde nel tuo ruolo e contesto. Usa "Nuova chat" per ripartire da zero.</small></div></div>
-      <div class="guide-step"><div class="guide-num">3</div><div class="guide-text">Flusso inter-agente<small>Nella tab "Flusso" scegli 2–4 agenti in sequenza. L'output di ciascuno passa automaticamente al successivo.</small></div></div>
-      <div class="guide-step"><div class="guide-num">4</div><div class="guide-text">Routine Fundraising<small>Usa la tab dedicata per la ricerca guidata di bandi e CSR, con selezione interattiva e bozza automatica.</small></div></div>
-      <div class="guide-step"><div class="guide-num">5</div><div class="guide-text">Configura il proxy Claude (una tantum)<small>L'app usa un proxy Google Apps Script per le API. Inserisci URL e token nella tab ⚙ Impostazioni.</small></div></div>
-      <div class="guide-step"><div class="guide-num">6</div><div class="guide-text">Salva il contesto su Google Drive<small>Al termine di una conversazione premi "Salva contesto" per generare una nota e salvarla nella cartella Drive dell'agente.</small></div></div>
-      <div class="guide-step"><div class="guide-num">7</div><div class="guide-text">Collega Google Drive (una tantum)<small>Inserisci il Client ID OAuth Google nelle Impostazioni e connetti Drive. Da quel momento i salvataggi partono automaticamente.</small></div></div>
-      <div class="guide-step"><div class="guide-num">8</div><div class="guide-text">Aggiorna il contesto della fondazione<small>L'Agente Contesto mantiene aggiornato il documento di riferimento usato da tutti gli agenti.</small></div></div>
-    </div>
-    <div class="guide-card">
-      <div class="guide-title">Alberatura cartelle Drive</div>
-      <div class="folder-tree">05_Agenti_AI
-├── 01_Fundraising          ← Agente Fundraising
-├── 02_Legal                ← Francesca Menaldo
-├── 03_Onboarding_Scuole    ← Giada Bono
-├── 04_Edu_Currency         ← Giancarlo Giuffra
-├── 05_Endowment_Patrimonio ← Giovanni Pozzi
-├── 06_Context_Agent        ← Agente Contesto e flussi
-├── 07_Comunicazione        ← Federica Gabardi
-└── 08_Direttivo_Strategico ← Lorenzo Lorenzi</div>
-    </div>
-  </div>
-
-  <!-- IMPOSTAZIONI -->
-  <div class="panel" id="panel-settings">
-    <div class="settings-wrap">
-      <div class="settings-section">
-        <div class="settings-section-title">Proxy Claude (obbligatorio per chat e flussi)</div>
-        <div class="settings-row">
-          <label>URL Web App Apps Script</label>
-          <input class="settings-input" id="proxy-url" type="url" placeholder="https://script.google.com/macros/s/…/exec">
-          <div class="settings-hint">L'app usa un proxy Apps Script che custodisce la chiave API Anthropic. Vedi la Guida per come crearlo.</div>
-        </div>
-        <div class="settings-row">
-          <label>Token del proxy</label>
-          <input class="settings-input" id="proxy-token" type="password" placeholder="token segreto">
-        </div>
-      </div>
-      <div class="settings-section">
-        <div class="settings-section-title">Google Drive (per salvare i file di contesto)</div>
-        <div class="settings-row">
-          <label>ID Client OAuth Google (Web application)</label>
-          <input class="settings-input" id="drive-client-id" placeholder="xxxxxx.apps.googleusercontent.com">
-          <div class="settings-hint">Creato in Google Cloud Console con API Drive abilitata. Origin autorizzata: archimedu.github.io</div>
-        </div>
-        <div class="settings-drive-status">
-          <span class="drive-dot" id="drive-dot-settings"></span>
-          <span id="drive-label-settings">Drive: Non connesso</span>
-        </div>
-      </div>
-      <button class="settings-save" onclick="saveSettings()">Salva impostazioni e connetti Drive</button>
-    </div>
-  </div>
-
-</div><!-- /app -->
-
-<!-- Save context modal -->
-<div class="modal-overlay" id="save-modal">
+<!-- MODALE: impostazioni -->
+<div class="modal-overlay hidden" id="driveSetupOverlay">
   <div class="modal">
-    <div class="modal-title">Salvare un file di contesto?</div>
-    <div class="modal-sub">Questo aiuta l'agente successivo a partire da dove hai lasciato.</div>
-    <label>Nome file</label>
-    <input id="save-filename" type="text">
-    <label>Cartella Drive</label>
-    <input id="save-folder" type="text" readonly>
-    <label>Contenuto</label>
-    <textarea id="save-content"></textarea>
-    <div class="modal-btns">
-      <button class="modal-btn cancel" onclick="closeSaveModal()">Non salvare</button>
-      <button class="modal-btn secondary" onclick="downloadContext()">Scarica soltanto</button>
-      <button class="modal-btn primary" onclick="confirmSaveDrive()">Salva su Drive</button>
+    <div class="modal-head">
+      <div class="titles"><h3>Impostazioni</h3><p>Configurazione una tantum per far funzionare chat, flussi e salvataggio su Drive.</p></div>
+      <button class="modal-close" onclick="closeModal('driveSetupOverlay')">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="section-label" style="margin-top:0;">Proxy Claude (obbligatorio per chat e flussi)</p>
+      <div class="field">
+        <label for="proxyUrlInput">URL Web App Apps Script</label>
+        <input type="text" id="proxyUrlInput" placeholder="https://script.google.com/macros/s/XXXXX/exec">
+        <div class="hint">L'app usa un proxy Google Apps Script che custodisce la chiave API Anthropic.</div>
+      </div>
+      <div class="field">
+        <label for="proxyTokenInput">Token del proxy</label>
+        <input type="text" id="proxyTokenInput" placeholder="token condiviso definito nello script">
+      </div>
+      <p class="section-label">Google Drive (per salvare i file di contesto)</p>
+      <div class="field">
+        <label for="driveClientIdInput">ID Client OAuth Google (Web application)</label>
+        <input type="text" id="driveClientIdInput" placeholder="xxxxxxxxxx-xxxxxxxx.apps.googleusercontent.com">
+        <div class="hint">Creato in Google Cloud Console con API Drive abilitata. Authorized JavaScript origin: archimedu.github.io</div>
+      </div>
+      <div class="folder-target">
+        <span>Stato Drive:</span> <strong id="driveStatusText">Non connesso</strong>
+      </div>
+    </div>
+    <div class="modal-status" id="driveSetupStatus"></div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="closeModal('driveSetupOverlay')">Chiudi</button>
+      <button class="btn-primary" onclick="saveClientIdAndConnect()">Salva impostazioni e connetti Drive</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE: proposta salvataggio contesto -->
+<div class="modal-overlay hidden" id="contextPromptOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="titles">
+        <h3 id="contextPromptTitle">Salvare un file di contesto?</h3>
+        <p id="contextPromptSubtitle">Questo aiuta l'agente successivo a partire da dove hai lasciato tu.</p>
+      </div>
+      <button class="modal-close" onclick="closeModal('contextPromptOverlay')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="folder-target"><span>Verrà salvato in:</span> <strong id="contextPromptFolder">—</strong></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="skipContextSave()">Non salvare</button>
+      <button class="btn-primary" onclick="generateContextDraftFlow()">Genera file di contesto</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE: editor file di contesto -->
+<div class="modal-overlay hidden" id="contextEditOverlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="titles"><h3>Rivedi il file di contesto</h3><p>Puoi modificare il testo prima di salvarlo su Drive.</p></div>
+      <button class="modal-close" onclick="closeModal('contextEditOverlay')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="field"><label for="contextFilenameInput">Nome file</label><input type="text" id="contextFilenameInput"></div>
+      <div class="folder-target"><span>Cartella Drive:</span> <strong id="contextEditFolder">—</strong></div>
+      <div class="field"><label for="contextEditTextarea">Contenuto</label><textarea class="context-textarea" id="contextEditTextarea"></textarea></div>
+    </div>
+    <div class="modal-status" id="contextEditStatus"></div>
+    <div class="modal-foot">
+      <button class="btn-ghost" onclick="downloadContextFile()">Scarica soltanto</button>
+      <button class="btn-ghost" onclick="closeModal('contextEditOverlay')">Annulla</button>
+      <button class="btn-primary" id="contextSaveDriveBtn" onclick="confirmSaveContextToDrive()">Salva su Drive</button>
     </div>
   </div>
 </div>
 
 <script>
-// ─── AGENTS DATA ────────────────────────────────────────────────────
+/* ============================================================
+   DATI AGENTI
+   ============================================================ */
 const AGENTS = [
-  { id:'fundraising', name:'Agente Fundraising', initials:'FR', role:'Monitoraggio bandi e CSR corporate', badge:'Fondazione · Fundraising', av:'av-fundraising', sel:'sel-fundraising', badgeCls:'badge-fundraising', group:'fondazione',
-    agents:['Agente Bandi & Finanziamenti','Agente CSR Corporate'],
-    system:`Sei l'Agente Fundraising di Fondazione Archimedu ETS, supervisione di Lorenzo Lorenzi (Presidente). La fondazione è un ETS italiano che sviluppa educazione innovativa e la valuta digitale Edu per l'economia dei diritti umani. Ha un progetto attivo presso la scuola primaria Buon Pastore a Milano. Monitori opportunità in due aree: bandi pubblici/fondazioni bancarie (Cariplo, Regione Lombardia, PNRR, Ministero del Lavoro) e CSR corporate di aziende attive in Lombardia. Per ogni opportunità indica: nome, ente, scadenza, importo, requisiti, coerenza con Archimedu e giudizio di candidabilità (alta/media/bassa). Rispondi in italiano con precisione e orientamento pratico.` },
-  { id:'contesto', name:'Agente Contesto', initials:'AC', role:'Mantiene il contesto generale della fondazione', badge:'Fondazione · Contesto', av:'av-giovanni', sel:'sel-giovanni', badgeCls:'badge-giovanni', group:'fondazione',
-    agents:['Agente Knowledge Base'],
-    system:`Sei l'Agente Contesto di Fondazione Archimedu ETS. Il tuo ruolo è mantenere aggiornato il documento di contesto generale usato come riferimento da tutti gli agenti. Quando ricevi aggiornamenti sulla fondazione, li integri nel documento di contesto e produci la versione aggiornata completa. Rispondi in italiano con precisione e completezza.` },
-  { id:'lorenzo', name:'Lorenzo Lorenzi', initials:'LL', role:'Presidente CdA', badge:'CdA · Presidente', av:'av-lorenzo', sel:'sel-lorenzo', badgeCls:'badge-lorenzo', group:'cda',
-    agents:['Agente Direttivo','Agente Supervisione Strategica'],
-    system:`Sei l'agente AI di Lorenzo Lorenzi, Presidente di Fondazione Archimedu ETS, fondazione italiana del terzo settore che sviluppa educazione e la valuta digitale Edu per l'economia dei diritti umani. Supporti Lorenzo nella supervisione strategica del CdA, nelle decisioni istituzionali, nella rappresentanza esterna e nella visione complessiva. Rispondi in italiano con tono istituzionale ma diretto. Quando ricevi output da altri agenti, sintetizza e orienta strategicamente.` },
-  { id:'giada', name:'Giada Bono', initials:'GB', role:'Onboarding scuole', badge:'CdA · Scuole', av:'av-giada', sel:'sel-giada', badgeCls:'badge-giada', group:'cda',
-    agents:['Agente Onboarding','Agente Relazioni Scolastiche'],
-    system:`Sei l'agente AI di Giada Bono, responsabile dell'onboarding delle scuole per Fondazione Archimedu ETS. Supporti Giada nell'acquisizione di nuove scuole partner, nella gestione del processo di adesione, nella formazione iniziale dei docenti e nel monitoraggio dell'integrazione della valuta Edu. Rispondi in italiano con tono professionale e orientato alle relazioni. Conosci la scuola primaria Buon Pastore a Milano come caso attivo.` },
-  { id:'giovanni', name:'Giovanni Pozzi', initials:'GP', role:'Gestione patrimoniale', badge:'CdA · Patrimonio', av:'av-giovanni', sel:'sel-giovanni', badgeCls:'badge-giovanni', group:'cda',
-    agents:['Agente Patrimoniale','Agente Fundraising'],
-    system:`Sei l'agente AI di Giovanni Pozzi, responsabile della gestione patrimoniale di Fondazione Archimedu ETS. Supporti Giovanni nella gestione finanziaria, nel monitoraggio del patrimonio, nella rendicontazione al CdA, nell'analisi di bandi e nella sostenibilità economica del progetto Edu. Rispondi in italiano con precisione e rigore, usando linguaggio tecnico-finanziario per il terzo settore italiano (D.Lgs. 117/2017).` },
-  { id:'giancarlo', name:'Giancarlo Giuffra', initials:'GG', role:'Valuta digitale Edu', badge:'CdA · Edu', av:'av-giancarlo', sel:'sel-giancarlo', badgeCls:'badge-giancarlo', group:'cda',
-    agents:['Agente Edu Tech','Agente GitHub','Agente Tokenomics'],
-    system:`Sei l'agente AI di Giancarlo Giuffra, responsabile della valuta digitale Edu per Fondazione Archimedu ETS. Supporti Giancarlo nello sviluppo tecnico della valuta digitale, nella gestione degli issues GitHub del progetto Edu, nella definizione della tokenomics, nell'architettura del sistema e nell'integrazione con l'economia dei diritti umani. Rispondi in italiano con competenza tecnica su token digitali e sviluppo software.` },
-  { id:'francesca', name:'Francesca Menaldo', initials:'FM', role:'Legal', badge:'CdA · Legal', av:'av-francesca', sel:'sel-francesca', badgeCls:'badge-francesca', group:'cda',
-    agents:['Agente Legal ETS','Agente Compliance GDPR'],
-    system:`Sei l'agente AI di Francesca Menaldo, responsabile della parte legale di Fondazione Archimedu ETS. Supporti Francesca nella gestione giuridica della fondazione, nella compliance con il Codice del Terzo Settore (D.Lgs. 117/2017), nel GDPR applicato alle attività con minori e scuole, nella contrattualistica e negli aspetti legali della valuta digitale Edu. Rispondi in italiano con rigore giuridico, segnalando sempre quando serve consulenza certificata.` },
-  { id:'federica', name:'Federica Gabardi', initials:'FG', role:'Comunicazione · Buon Pastore', badge:'Staff · Comunicazione', av:'av-federica', sel:'sel-federica', badgeCls:'badge-federica', group:'cda',
-    agents:['Agente Comunicazione','Agente Progetto Buon Pastore'],
-    system:`Sei l'agente AI di Federica Gabardi, dipendente di Fondazione Archimedu ETS responsabile della comunicazione, assegnata al progetto presso la scuola primaria Buon Pastore a Milano. Supporti Federica nella comunicazione istituzionale, nei contenuti per social e sito, nella documentazione del progetto Buon Pastore, nelle comunicazioni con famiglie e docenti, e nella reportistica delle attività educative. Rispondi in italiano con tono caldo e accessibile.` }
+  { id:"lorenzo", name:"Lorenzo Lorenzi", role:"Presidente CdA", initials:"LL", colorBg:"#EEEDFE", colorFg:"#3C3489", agentList:"Agente Direttivo · Agente Supervisione Strategica", section:"staff", systemPrompt:"Sei l'agente AI di Lorenzo Lorenzi, Presidente di Fondazione Archimedu ETS, fondazione italiana del terzo settore che sviluppa educazione e la valuta digitale Edu per l'economia dei diritti umani. Supporti Lorenzo nella supervisione strategica del CdA, nelle decisioni istituzionali, nella rappresentanza esterna e nella visione complessiva. Rispondi in italiano con tono istituzionale ma diretto. Quando ricevi output da altri agenti, sintetizza e orienta strategicamente." },
+  { id:"giada", name:"Giada Bono", role:"Onboarding scuole", initials:"GB", colorBg:"#E1F5EE", colorFg:"#085041", agentList:"Agente Onboarding · Agente Relazioni Scolastiche", section:"staff", systemPrompt:"Sei l'agente AI di Giada Bono, responsabile dell'onboarding delle scuole per Fondazione Archimedu ETS. Supporti Giada nell'acquisizione di nuove scuole partner, nella gestione del processo di adesione, nella formazione iniziale dei docenti e nel monitoraggio dell'integrazione della valuta Edu. Rispondi in italiano con tono professionale e orientato alle relazioni. Conosci la scuola primaria Buon Pastore a Milano come caso attivo." },
+  { id:"giovanni", name:"Giovanni Pozzi", role:"Gestione patrimoniale", initials:"GP", colorBg:"#E6F1FB", colorFg:"#0C447C", agentList:"Agente Patrimoniale · Agente Fundraising", section:"staff", systemPrompt:"Sei l'agente AI di Giovanni Pozzi, responsabile della gestione patrimoniale di Fondazione Archimedu ETS. Supporti Giovanni nella gestione finanziaria, nel monitoraggio del patrimonio, nella rendicontazione al CdA, nell'analisi di bandi e finanziamenti e nella sostenibilità economica del progetto Edu. Rispondi in italiano con precisione e rigore, usando linguaggio tecnico-finanziario appropriato per il terzo settore italiano (D.Lgs. 117/2017)." },
+  { id:"giancarlo", name:"Giancarlo Giuffra", role:"Valuta digitale Edu", initials:"GG", colorBg:"#FAEEDA", colorFg:"#633806", agentList:"Agente Edu Tech · Agente GitHub · Agente Tokenomics", section:"staff", systemPrompt:"Sei l'agente AI di Giancarlo Giuffra, responsabile della valuta digitale Edu per Fondazione Archimedu ETS. Supporti Giancarlo nello sviluppo tecnico della valuta digitale, nella gestione degli issues GitHub del progetto Edu, nella definizione della tokenomics, nell'architettura del sistema e nell'integrazione con l'economia dei diritti umani. Rispondi in italiano con competenza tecnica su token digitali e sviluppo software." },
+  { id:"francesca", name:"Francesca Menaldo", role:"Legal", initials:"FM", colorBg:"#FAECE7", colorFg:"#4A1B0C", agentList:"Agente Legal ETS · Agente Compliance GDPR", section:"staff", systemPrompt:"Sei l'agente AI di Francesca Menaldo, responsabile della parte legale di Fondazione Archimedu ETS. Supporti Francesca nella gestione giuridica della fondazione, nella compliance con il Codice del Terzo Settore (D.Lgs. 117/2017), nel GDPR applicato alle attività con minori e scuole, nella contrattualistica con le scuole partner e negli aspetti legali della valuta digitale Edu. Rispondi in italiano con rigore giuridico, segnalando sempre quando serve consulenza legale certificata." },
+  { id:"federica", name:"Federica Gabardi", role:"Comunicazione & Buon Pastore", initials:"FG", colorBg:"#FBEAF0", colorFg:"#4B1528", agentList:"Agente Comunicazione · Agente Progetto Buon Pastore", section:"staff", systemPrompt:"Sei l'agente AI di Federica Gabardi, dipendente di Fondazione Archimedu ETS responsabile della comunicazione, assegnata al progetto presso la scuola primaria Buon Pastore a Milano (Municipio 1). Supporti Federica nella comunicazione istituzionale, nei contenuti per social e sito, nella documentazione del progetto Buon Pastore, nelle comunicazioni con famiglie e docenti, e nella reportistica delle attività educative. Rispondi in italiano con tono caldo, accessibile e orientato alla comunità scolastica." },
+  { id:"fundraising", name:"Agente Fundraising — Archimedu ETS", role:"Referente: Lorenzo Lorenzi (Presidente)", initials:"FR", colorBg:"#E8F5E9", colorFg:"#1B5E20", agentList:"Agente Bandi & Finanziamenti · Agente CSR Corporate", section:"fondazione", badge:"Fondazione · Fundraising", systemPrompt:"Sei l'agente Fundraising di Fondazione Archimedu ETS, che opera sotto la supervisione di Lorenzo Lorenzi (Presidente). La tua missione è identificare, monitorare e supportare la candidatura a opportunità di finanziamento in due aree principali:\n\n1. BANDI PUBBLICI E PRIVATI\nMonitora e analizza bandi provenienti da: fondazioni bancarie (Fondazione Cariplo, Fondazione Con il Sud, fondazioni di origine bancaria lombarde), bandi regionali e comunali (Regione Lombardia, Comune di Milano), bandi nazionali per ETS e impresa sociale (PNRR, Ministero del Lavoro, CSV, RUNTS), bandi europei rilevanti per educazione e innovazione sociale.\n\n2. CSR CORPORATE\nMonitora programmi di Corporate Social Responsibility di aziende private italiane e multinazionali attive in Lombardia, con focus su: aziende con programmi CSR in ambito educazione, innovazione digitale, economia sociale. Identifica i referenti CSR, le finestre di candidatura e i criteri di ammissibilità.\n\nPer ogni opportunità identificata fornisci: nome del bando/programma, ente erogatore, scadenza, importo disponibile, requisiti di ammissibilità, coerenza con la missione di Archimedu (educazione, valuta Edu, economia dei diritti umani), e un giudizio sintetico di candidabilità (alta / media / bassa).\n\nSupporti anche la redazione di lettere di intento, project summary e sezioni narrative delle domande di finanziamento. Rispondi in italiano con precisione, orientamento pratico e senso delle priorità." },
+  { id:"contesto", name:"Agente Contesto — Archimedu ETS", role:"Mantiene il contesto generale della fondazione", initials:"AC", colorBg:"#E7ECF1", colorFg:"#33445B", agentList:"Agente Documento di Contesto", section:"fondazione", badge:"Fondazione · Contesto", isContextAgent:true, systemPrompt:"Sei l'Agente Contesto di Fondazione Archimedu ETS. Il tuo compito è mantenere aggiornato il Documento di Contesto generale della fondazione — la base di conoscenza condivisa che tutti gli altri agenti usano come riferimento comune. Quando ricevi nuove informazioni, integrale nella struttura esistente del documento senza perdere le sezioni non toccate, segnalando chiaramente cosa è cambiato. Rispondi in italiano con precisione, chiarezza e senso di sintesi." }
 ];
 
-// ─── STATE ──────────────────────────────────────────────────────────
-let selectedAgent = null;
-let chatHistory = {};
-let flowStepCount = 2;
-let settings = JSON.parse(localStorage.getItem('archimedu-settings') || '{}');
-let driveConnected = false;
+const AGENTS_BY_ID = Object.fromEntries(AGENTS.map(a => [a.id, a]));
+
+const DRIVE_ROOT_FOLDER = { id: "1IElhbi-GLRao7xoIDio7NYKWVN12OKzQ", label: "05_Agenti_AI" };
+const DRIVE_FOLDER_MAP = {
+  lorenzo:     { id: "1wapyl4RDpAInj6QVwFGJT9WOHwESuP2v", label: "05_Agenti_AI / 08_Direttivo_Strategico" },
+  giada:       { id: "1pXobNKTTUJL00kL9pFrkQO7PKwfc22iH", label: "05_Agenti_AI / 03_Onboarding_Scuole" },
+  giovanni:    { id: "1DuTVD5uQl-KAWlbP-BfAF0CJiyddGwW3", label: "05_Agenti_AI / 05_Endowment_Patrimonio" },
+  giancarlo:   { id: "1tnNOUJLKvKyKZv5S20UjQTSYaQJVeCGi", label: "05_Agenti_AI / 04_Edu_Currency" },
+  francesca:   { id: "1j8dKIMtr7d6NbNSHWZYYO-KEy6EKVcnV", label: "05_Agenti_AI / 02_Legal" },
+  federica:    { id: "1Li9obhqhiGaWiALIODi685wmafAyp7ni", label: "05_Agenti_AI / 07_Comunicazione_Buon_Pastore" },
+  fundraising: { id: "1DRrxCyOb-RLDIEq7CCDoTHUOgs0CFee9", label: "05_Agenti_AI / 01_Fundraising" },
+  contesto:    { id: "1P5R3QASoiAu8ZrEK13gF0fkg6rEC3I-P", label: "05_Agenti_AI / 06_Context_Agent" }
+};
+const FLOW_FOLDER = { id: "1P5R3QASoiAu8ZrEK13gF0fkg6rEC3I-P", label: "05_Agenti_AI / 06_Context_Agent" };
+
+/* ============================================================
+   DRIVE OAUTH (identico all'originale)
+   ============================================================ */
+let driveClientId = localStorage.getItem("archimedu_drive_client_id") || "";
+let claudeProxyUrl = localStorage.getItem("archimedu_proxy_url") || "";
+let claudeProxyToken = localStorage.getItem("archimedu_proxy_token") || "";
+let gisTokenClient = null;
+let driveAccessToken = null;
+let driveTokenExpiry = 0;
+let pendingAfterAuth = null;
+
+function isDriveConnected(){ return !!driveAccessToken && Date.now() < driveTokenExpiry; }
+
+function updateDriveStatusUI(){
+  const connected = isDriveConnected();
+  document.getElementById("drivePill").classList.toggle("connected", connected);
+  document.getElementById("drivePillLabel").textContent = connected ? "Drive connesso" : "Drive non connesso";
+  const statusText = document.getElementById("driveStatusText");
+  if(statusText) statusText.textContent = connected ? "Connesso" : "Non connesso";
+}
+
+function openDriveSetupModal(){
+  document.getElementById("driveClientIdInput").value = driveClientId;
+  document.getElementById("proxyUrlInput").value = claudeProxyUrl;
+  document.getElementById("proxyTokenInput").value = claudeProxyToken;
+  document.getElementById("driveSetupStatus").textContent = "";
+  document.getElementById("driveSetupStatus").className = "modal-status";
+  updateDriveStatusUI();
+  document.getElementById("driveSetupOverlay").classList.remove("hidden");
+}
+
+function closeModal(id){ document.getElementById(id).classList.add("hidden"); }
+
+function saveClientIdAndConnect(){
+  claudeProxyUrl = document.getElementById("proxyUrlInput").value.trim();
+  claudeProxyToken = document.getElementById("proxyTokenInput").value.trim();
+  localStorage.setItem("archimedu_proxy_url", claudeProxyUrl);
+  localStorage.setItem("archimedu_proxy_token", claudeProxyToken);
+  const val = document.getElementById("driveClientIdInput").value.trim();
+  const statusEl = document.getElementById("driveSetupStatus");
+  if(!val){
+    statusEl.textContent = "Impostazioni proxy salvate. Inserisci anche un ID Client Google per connetterti a Drive.";
+    statusEl.className = "modal-status"; return;
+  }
+  driveClientId = val;
+  localStorage.setItem("archimedu_drive_client_id", driveClientId);
+  gisTokenClient = null;
+  statusEl.textContent = "Apertura finestra di consenso Google…";
+  statusEl.className = "modal-status";
+  connectDrive(() => {
+    statusEl.textContent = "Impostazioni salvate e connessione a Drive riuscita.";
+    statusEl.className = "modal-status success";
+    updateDriveStatusUI();
+  }, (err) => {
+    statusEl.textContent = "Impostazioni salvate. Connessione a Drive non riuscita: " + err;
+    statusEl.className = "modal-status error";
+  });
+}
+
+function connectDrive(onSuccess, onError){
+  if(!driveClientId){ openDriveSetupModal(); return; }
+  if(typeof google === "undefined" || !google.accounts || !google.accounts.oauth2){
+    if(onError) onError("libreria Google non ancora caricata, riprova tra un istante"); return;
+  }
+  try{
+    if(!gisTokenClient){
+      gisTokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: driveClientId,
+        scope: "https://www.googleapis.com/auth/drive",
+        callback: (resp) => {
+          if(resp.error){ if(onError) onError(resp.error); return; }
+          driveAccessToken = resp.access_token;
+          driveTokenExpiry = Date.now() + (resp.expires_in * 1000) - 30000;
+          updateDriveStatusUI();
+          if(onSuccess) onSuccess();
+        }
+      });
+    }
+    gisTokenClient.requestAccessToken({ prompt: isDriveConnected() ? "" : "consent" });
+  }catch(e){ if(onError) onError(e.message); }
+}
+
+function ensureDriveConnected(onReady, onError){
+  if(isDriveConnected()){ onReady(); return; }
+  connectDrive(onReady, onError);
+}
+
+async function uploadTextFileToDrive(folderId, filename, content){
+  const boundary = "archimedu_boundary_" + Date.now();
+  const metadata = { name: filename, parents: [folderId], mimeType: "text/markdown" };
+  const body = "--" + boundary + "\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n" + JSON.stringify(metadata) + "\r\n--" + boundary + "\r\nContent-Type: text/markdown; charset=UTF-8\r\n\r\n" + content + "\r\n--" + boundary + "--";
+  const res = await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true", {
+    method: "POST",
+    headers: { "Authorization": "Bearer " + driveAccessToken, "Content-Type": "multipart/related; boundary=" + boundary },
+    body: body
+  });
+  if(!res.ok){ const errText = await res.text().catch(() => ""); throw new Error("Errore Drive (" + res.status + "): " + errText.slice(0,200)); }
+  return await res.json();
+}
+
+async function driveListFilesInFolder(folderId){
+  const q = encodeURIComponent("'" + folderId + "' in parents and trashed = false");
+  const url = "https://www.googleapis.com/drive/v3/files?q=" + q + "&orderBy=modifiedTime desc&fields=files(id,name,mimeType,modifiedTime)&supportsAllDrives=true&includeItemsFromAllDrives=true";
+  const res = await fetch(url, { headers: { "Authorization": "Bearer " + driveAccessToken } });
+  if(!res.ok) throw new Error("Errore nel leggere la cartella Drive (" + res.status + ")");
+  const data = await res.json();
+  return data.files || [];
+}
+
+async function driveDownloadFileAsText(file){
+  let url = file.mimeType && file.mimeType.startsWith("application/vnd.google-apps")
+    ? "https://www.googleapis.com/drive/v3/files/" + file.id + "/export?mimeType=text/plain"
+    : "https://www.googleapis.com/drive/v3/files/" + file.id + "?alt=media";
+  const res = await fetch(url, { headers: { "Authorization": "Bearer " + driveAccessToken } });
+  if(!res.ok) throw new Error("Errore nello scaricare il file da Drive (" + res.status + ")");
+  return await res.text();
+}
+
+async function loadFoundationContextIntoChat(){
+  const agentId = currentChatAgentId;
+  if(agentId !== "contesto") return;
+  const btn = document.getElementById("loadContextBtn");
+  if(btn){ btn.disabled = true; btn.textContent = "Caricamento…"; }
+  const doLoad = async () => {
+    try{
+      const files = await driveListFilesInFolder(FLOW_FOLDER.id);
+      const textFiles = files.filter(f => f.mimeType !== "application/vnd.google-apps.folder");
+      if(textFiles.length === 0){ alert("Nessun documento trovato nella cartella " + FLOW_FOLDER.label + "."); return; }
+      const preferred = textFiles.find(f => /contesto/i.test(f.name)) || textFiles[0];
+      const text = await driveDownloadFileAsText(preferred);
+      chatHistories[agentId].push({ role:"user", content:"[DOCUMENTO DI CONTESTO ATTUALE — " + preferred.name + "]\n\n" + text, label:"📄 Contesto caricato da Drive: " + preferred.name });
+      renderChatMessages();
+    }catch(err){ alert("Non è stato possibile caricare il contesto da Drive: " + err.message); }
+    finally{ if(btn){ btn.disabled = false; btn.textContent = "Carica contesto attuale"; } }
+  };
+  if(!isDriveConnected()){ connectDrive(doLoad, (err) => alert("Connessione a Drive non riuscita: " + err)); } else { await doLoad(); }
+}
+
+/* ============================================================
+   GENERAZIONE FILE DI CONTESTO (identico all'originale)
+   ============================================================ */
+function timestampSlug(){
+  const d = new Date(); const pad = n => String(n).padStart(2,"0");
+  return d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()) + "_" + pad(d.getHours()) + pad(d.getMinutes());
+}
+function slugify(text){ return text.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9]+/g,"-").replace(/^-+|-+$/g,""); }
+
+const CONTEXT_NOTE_INSTRUCTIONS = "Qui sotto trovi la trascrizione di una conversazione o di un'elaborazione appena conclusa. Scrivi una nota di contesto sintetica in formato markdown, pensata per essere letta da un altro agente (o da te stesso) al passaggio successivo, per garantire continuità operativa. Struttura la nota con queste sezioni, in italiano:\n- Oggetto: una riga che riassume il tema\n- Punti chiave / decisioni prese\n- Dati o informazioni rilevanti emerse\n- Attività aperte o prossimi passi\nNon includere formule di cortesia, non ripetere la trascrizione integrale, non aggiungere premesse. Scrivi solo il contenuto della nota, pronta per essere salvata così com'è in un file.";
+
+async function generateChatContextNote(agent, history){
+  const transcript = history.map(m => (m.role==="user"?"Utente":"Agente") + ": " + m.content).join("\n\n");
+  const note = await callAgent(agent.systemPrompt, [{role:"user", content: CONTEXT_NOTE_INSTRUCTIONS + "\n\nTRASCRIZIONE:\n" + transcript}]);
+  return "---\ndata: " + new Date().toISOString().slice(0,10) + "\nagente: " + agent.name + "\ntipo: conversazione\n---\n\n" + note;
+}
+
+async function generateFlowContextNote(stepIds, task, finalOutput){
+  const stepNames = stepIds.map(id => AGENTS_BY_ID[id].name).join(" → ");
+  const transcript = "Sequenza agenti: " + stepNames + "\n\nTask iniziale:\n" + task + "\n\nOutput finale del flusso:\n" + finalOutput;
+  const synthAgent = AGENTS_BY_ID[stepIds[stepIds.length - 1]];
+  const note = await callAgent(synthAgent.systemPrompt, [{role:"user", content: CONTEXT_NOTE_INSTRUCTIONS + "\n\nTRASCRIZIONE:\n" + transcript}]);
+  return "---\ndata: " + new Date().toISOString().slice(0,10) + "\nflusso: " + stepNames + "\ntipo: flusso-inter-agente\n---\n\n" + note;
+}
+
+async function generateFoundationContextUpdate(agent, history){
+  const transcript = history.map(m => (m.role==="user"?"Utente":"Agente") + ": " + m.content).join("\n\n");
+  const prompt = "Qui sotto trovi la trascrizione della conversazione appena conclusa con l'Agente Contesto. Se nella trascrizione è presente un documento di contesto caricato in precedenza, usalo come base. Produci la versione aggiornata e completa del Documento di Contesto della Fondazione Archimedu, in formato markdown, mantenendo tutte le sezioni esistenti e integrando le informazioni nuove emerse in questa conversazione. Non aggiungere premesse o commenti fuori dal documento stesso.\n\nTRASCRIZIONE:\n" + transcript;
+  const note = await callAgent(agent.systemPrompt, [{role:"user", content: prompt}]);
+  return "---\ndata: " + new Date().toISOString().slice(0,10) + "\ntipo: documento-contesto-fondazione\n---\n\n" + note;
+}
+
+let pendingContextSave = null;
+
+function promptSaveContext(kind, folder, filenameBase, buildNote, afterDone){
+  pendingContextSave = { kind, folder, filenameBase, buildNote, afterDone };
+  document.getElementById("contextPromptTitle").textContent = kind === "flow" ? "Salvare il contesto di questo flusso?" : "Salvare un file di contesto per questa conversazione?";
+  document.getElementById("contextPromptSubtitle").textContent = "Aiuta l'agente successivo a partire da dove hai lasciato tu, senza ripetere tutto da capo.";
+  document.getElementById("contextPromptFolder").textContent = folder.label;
+  document.getElementById("contextPromptOverlay").classList.remove("hidden");
+}
+
+function skipContextSave(){
+  closeModal("contextPromptOverlay");
+  if(pendingContextSave && pendingContextSave.afterDone) pendingContextSave.afterDone();
+  pendingContextSave = null;
+}
+
+async function generateContextDraftFlow(){
+  if(!pendingContextSave) return;
+  const btn = document.querySelector("#contextPromptOverlay .btn-primary");
+  btn.disabled = true; btn.textContent = "Generazione in corso…";
+  try{
+    const note = await pendingContextSave.buildNote();
+    closeModal("contextPromptOverlay");
+    openContextEditModal(note);
+  }catch(err){ alert("Non è stato possibile generare la nota di contesto: " + err.message); }
+  finally{ btn.disabled = false; btn.textContent = "Genera file di contesto"; }
+}
+
+function openContextEditModal(noteContent){
+  const filename = timestampSlug() + "_" + slugify(pendingContextSave.filenameBase) + "_Contesto.md";
+  document.getElementById("contextFilenameInput").value = filename;
+  document.getElementById("contextEditFolder").textContent = pendingContextSave.folder.label;
+  document.getElementById("contextEditTextarea").value = noteContent;
+  document.getElementById("contextEditStatus").textContent = "";
+  document.getElementById("contextEditStatus").className = "modal-status";
+  document.getElementById("contextEditOverlay").classList.remove("hidden");
+}
+
+function downloadContextFile(){
+  const filename = document.getElementById("contextFilenameInput").value.trim() || "contesto.md";
+  const content = document.getElementById("contextEditTextarea").value;
+  const blob = new Blob([content], {type:"text/markdown"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a"); a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+}
+
+async function confirmSaveContextToDrive(){
+  const statusEl = document.getElementById("contextEditStatus");
+  const btn = document.getElementById("contextSaveDriveBtn");
+  const filename = document.getElementById("contextFilenameInput").value.trim() || "contesto.md";
+  const content = document.getElementById("contextEditTextarea").value;
+  const folder = pendingContextSave.folder;
+  const doUpload = async () => {
+    btn.disabled = true;
+    statusEl.textContent = "Salvataggio su Drive in corso…"; statusEl.className = "modal-status";
+    try{
+      await uploadTextFileToDrive(folder.id, filename, content);
+      statusEl.textContent = "Salvato in " + folder.label + "."; statusEl.className = "modal-status success";
+      setTimeout(() => { closeModal("contextEditOverlay"); const done = pendingContextSave && pendingContextSave.afterDone; pendingContextSave = null; if(done) done(); }, 900);
+    }catch(err){
+      statusEl.textContent = "Errore nel salvataggio: " + err.message; statusEl.className = "modal-status error";
+    }finally{ btn.disabled = false; }
+  };
+  if(!isDriveConnected()){ statusEl.textContent = "Connessione a Google Drive necessaria…"; statusEl.className = "modal-status"; connectDrive(doUpload, (err) => { statusEl.textContent = "Connessione non riuscita: " + err; statusEl.className = "modal-status error"; }); }
+  else { await doUpload(); }
+}
+
+/* ============================================================
+   STATO
+   ============================================================ */
+let currentChatAgentId = null;
+let chatHistories = {};
+AGENTS.forEach(a => chatHistories[a.id] = []);
+
+/* ============================================================
+   API
+   ============================================================ */
+async function callAgent(systemPrompt, messages){
+  if(!claudeProxyUrl) throw new Error("Proxy Claude non configurato. Apri le Impostazioni (icona ⚙) e inserisci l'URL del proxy Apps Script.");
+  const response = await fetch(claudeProxyUrl, {
+    method: "POST",
+    headers: { "Content-Type": "text/plain;charset=utf-8" },
+    body: JSON.stringify({ token: claudeProxyToken, payload: { model: "claude-sonnet-4-6", max_tokens: 1000, system: systemPrompt, messages: messages } })
+  });
+  if(!response.ok) throw new Error("Errore proxy: " + response.status);
+  const data = await response.json();
+  if(data.error) throw new Error(typeof data.error === "string" ? data.error : (data.error.message || "errore proxy"));
+  const textBlocks = (data.content || []).filter(b => b.type === "text").map(b => b.text);
+  return textBlocks.join("\n").trim() || "(nessuna risposta testuale ricevuta)";
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+});
+
+function switchTab(tabId){
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tabId));
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.getElementById("view-" + tabId).classList.add("active");
+  if(tabId === "chat") renderChatView();
+}
+
+function dismissBanner(){ document.getElementById("welcomeBanner").style.display = "none"; }
+
+/* ============================================================
+   TAB 1: AGENTI
+   ============================================================ */
+function renderAgentCard(agent){
+  const badge = agent.badge ? `<span class="fund-badge" style="background:${agent.colorBg};color:${agent.colorFg};">${agent.badge}</span>` : "";
+  return `<button class="agent-card" onclick="openAgentChat('${agent.id}')"><div class="row1"><div class="avatar" style="background:${agent.colorBg};color:${agent.colorFg};">${agent.initials}</div><div class="who"><div class="name">${agent.name}</div><div class="role">${agent.role}</div></div></div>${badge}<div class="agent-list">${agent.agentList}</div></button>`;
+}
+function renderAgentGrids(){
+  document.getElementById("grid-fondazione").innerHTML = AGENTS.filter(a => a.section === "fondazione").map(renderAgentCard).join("");
+  document.getElementById("grid-staff").innerHTML = AGENTS.filter(a => a.section === "staff").map(renderAgentCard).join("");
+}
+renderAgentGrids();
+
+function openAgentChat(agentId){ currentChatAgentId = agentId; switchTab("chat"); }
+
+/* ============================================================
+   TAB 2: CHAT
+   ============================================================ */
+function renderChatView(){
+  const wrap = document.getElementById("chatPickerWrap");
+  if(!currentChatAgentId){ wrap.innerHTML = `<div class="chat-picker">Seleziona un agente dalla tab "Agenti" per iniziare una conversazione.</div>`; return; }
+  const agent = AGENTS_BY_ID[currentChatAgentId];
+  const loadContextBtn = agent.isContextAgent ? `<button class="btn-ghost" id="loadContextBtn" onclick="loadFoundationContextIntoChat()">Carica contesto attuale</button>` : "";
+  wrap.innerHTML = `<div class="chat-shell"><div class="chat-header"><div class="avatar" style="width:34px;height:34px;font-size:12px;background:${agent.colorBg};color:${agent.colorFg};">${agent.initials}</div><div class="who"><div class="name">${agent.name}</div><div class="role">${agent.role}</div></div><div class="spacer"></div>${loadContextBtn}<button class="btn-ghost" onclick="manualSaveChatContext()">Salva contesto</button><button class="btn-ghost" onclick="newChat()">Nuova chat</button></div><div class="chat-body" id="chatBody"></div><div class="chat-input-row"><textarea id="chatInput" rows="1" placeholder="Scrivi un messaggio…" onkeydown="handleChatKeydown(event)"></textarea><button class="btn-send" id="chatSendBtn" onclick="sendChatMessage()">Invia</button></div></div>`;
+  renderChatMessages();
+}
+
+function renderChatMessages(){
+  const body = document.getElementById("chatBody");
+  if(!body) return;
+  const history = chatHistories[currentChatAgentId];
+  if(history.length === 0){ body.innerHTML = `<div class="chat-empty">Inizia la conversazione con il tuo agente. Le risposte tengono conto del ruolo e del contesto di Fondazione Archimedu ETS.</div>`; return; }
+  body.innerHTML = history.map(m => `<div class="bubble-row ${m.role==='user'?'user':'agent'}"><div class="bubble">${m.label?`<div style="font-size:11px;font-weight:700;color:var(--ink-faint);margin-bottom:4px;">${escapeHtml(m.label)}</div>`:""}${escapeHtml(m.content)}</div></div>`).join("");
+  body.scrollTop = body.scrollHeight;
+}
+
+function handleChatKeydown(e){ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); sendChatMessage(); } }
+
+async function sendChatMessage(){
+  const input = document.getElementById("chatInput");
+  const text = input.value.trim();
+  if(!text || !currentChatAgentId) return;
+  const agent = AGENTS_BY_ID[currentChatAgentId];
+  const history = chatHistories[currentChatAgentId];
+  history.push({role:"user", content:text});
+  input.value = ""; renderChatMessages(); setChatSending(true); showTypingIndicator();
+  try{
+    const reply = await callAgent(agent.systemPrompt, history.map(m => ({role:m.role, content:m.content})));
+    history.push({role:"assistant", content:reply});
+  }catch(err){ history.push({role:"assistant", content:"Si è verificato un errore nel contattare l'agente.\n\n(" + err.message + ")"}); }
+  finally{ setChatSending(false); renderChatMessages(); }
+}
+
+function showTypingIndicator(){
+  const body = document.getElementById("chatBody"); if(!body) return;
+  const row = document.createElement("div"); row.className = "bubble-row agent"; row.id = "typingRow";
+  row.innerHTML = `<div class="bubble"><div class="typing-dots"><span></span><span></span><span></span></div></div>`;
+  body.appendChild(row); body.scrollTop = body.scrollHeight;
+}
+
+function setChatSending(isSending){
+  const btn = document.getElementById("chatSendBtn"); if(btn) btn.disabled = isSending;
+  if(!isSending){ const t = document.getElementById("typingRow"); if(t) t.remove(); }
+}
+
+function newChat(){
+  if(!currentChatAgentId) return;
+  const agentId = currentChatAgentId; const history = chatHistories[agentId];
+  const resetChat = () => { chatHistories[agentId] = []; renderChatMessages(); };
+  if(history.length === 0){ resetChat(); return; }
+  const agent = AGENTS_BY_ID[agentId];
+  const folder = DRIVE_FOLDER_MAP[agentId] || FLOW_FOLDER;
+  const filenameBase = agent.isContextAgent ? "Documento_Archimedu" : (agent.name + "_" + agentId);
+  const buildNote = agent.isContextAgent ? () => generateFoundationContextUpdate(agent, history) : () => generateChatContextNote(agent, history);
+  promptSaveContext("chat", folder, filenameBase, buildNote, resetChat);
+}
+
+function manualSaveChatContext(){
+  if(!currentChatAgentId) return;
+  const agentId = currentChatAgentId; const history = chatHistories[agentId];
+  if(history.length === 0){ alert("Non c'è ancora nessuna conversazione da salvare con questo agente."); return; }
+  const agent = AGENTS_BY_ID[agentId];
+  const folder = DRIVE_FOLDER_MAP[agentId] || FLOW_FOLDER;
+  const filenameBase = agent.isContextAgent ? "Documento_Archimedu" : (agent.name + "_" + agentId);
+  const buildNote = agent.isContextAgent ? () => generateFoundationContextUpdate(agent, history) : () => generateChatContextNote(agent, history);
+  promptSaveContext("chat", folder, filenameBase, buildNote, () => {});
+}
+
+function escapeHtml(str){ const div = document.createElement("div"); div.textContent = str; return div.innerHTML; }
+
+/* ============================================================
+   TAB 3: FLUSSO
+   ============================================================ */
+let flowSteps = ["lorenzo", "fundraising"];
+
+function renderFlowSteps(){
+  const wrap = document.getElementById("flowSteps"); const html = [];
+  flowSteps.forEach((agentId, idx) => {
+    const agent = AGENTS_BY_ID[agentId];
+    html.push(`<div class="flow-step"><div class="mini-avatar" style="background:${agent.colorBg};color:${agent.colorFg};">${agent.initials}</div><select onchange="updateFlowStep(${idx}, this.value)">${AGENTS.map(a => `<option value="${a.id}" ${a.id===agentId?"selected":""}>${a.name}</option>`).join("")}</select>${flowSteps.length > 2 ? `<button class="remove-step" onclick="removeFlowStep(${idx})" title="Rimuovi passaggio">×</button>` : ""}</div>`);
+    if(idx < flowSteps.length - 1) html.push(`<div class="flow-arrow">→</div>`);
+  });
+  wrap.innerHTML = html.join("");
+  document.getElementById("addStepBtn").style.display = flowSteps.length >= 4 ? "none" : "inline-block";
+}
+
+function updateFlowStep(idx, agentId){ flowSteps[idx] = agentId; renderFlowSteps(); }
+function addFlowStep(){ if(flowSteps.length >= 4) return; const unused = AGENTS.find(a => !flowSteps.includes(a.id)); flowSteps.push(unused ? unused.id : AGENTS[0].id); renderFlowSteps(); }
+function removeFlowStep(idx){ if(flowSteps.length <= 2) return; flowSteps.splice(idx, 1); renderFlowSteps(); }
+renderFlowSteps();
+
+function termLine(text, cls){ const term = document.getElementById("flowTerminal"); const p = document.createElement("p"); p.className = "term-line term-" + cls; p.textContent = text; term.appendChild(p); term.scrollTop = term.scrollHeight; }
+function clearTerminal(){ document.getElementById("flowTerminal").innerHTML = ""; }
+
+async function runFlow(){
+  const task = document.getElementById("flowTask").value.trim();
+  if(!task){ alert("Inserisci un task da elaborare prima di eseguire il flusso."); return; }
+  if(flowSteps.length < 2){ alert("Seleziona almeno 2 agenti per il flusso."); return; }
+  const runBtn = document.getElementById("runFlowBtn"); runBtn.disabled = true;
+  clearTerminal();
+  termLine("Avvio flusso inter-agente…", "normal");
+  termLine("Passaggi: " + flowSteps.map(id => AGENTS_BY_ID[id].name).join(" → "), "muted");
+  termLine("", "normal");
+  let previousOutput = task;
+  try{
+    for(let i = 0; i < flowSteps.length; i++){
+      const agent = AGENTS_BY_ID[flowSteps[i]];
+      termLine("[Passo " + (i+1) + "/" + flowSteps.length + "] " + agent.name, "relay");
+      let messageContent = i === 0 ? task : "[OUTPUT RICEVUTO]\n\n" + previousOutput + "\n\n[ISTRUZIONI]\nElabora nel tuo ruolo l'output ricevuto dall'agente precedente, aggiungendo il tuo contributo specifico.";
+      if(i === 0) termLine("→ Invio task iniziale…", "normal"); else termLine("→ Relay dell'output precedente in corso…", "relay");
+      const output = await callAgent(agent.systemPrompt, [{role:"user", content: messageContent}]);
+      previousOutput = output;
+      termLine("✓ " + agent.name + " ha completato l'elaborazione.", "success");
+      termLine("", "normal");
+    }
+    termLine("========================================", "muted");
+    termLine("OUTPUT FINALE DEL FLUSSO", "success");
+    termLine("========================================", "muted");
+    termLine(previousOutput, "normal");
+    const stepsSnapshot = flowSteps.slice(); const taskSnapshot = task; const outputSnapshot = previousOutput;
+    promptSaveContext("flow", FLOW_FOLDER, "Flusso_" + stepsSnapshot.map(id => AGENTS_BY_ID[id].initials).join("-"), () => generateFlowContextNote(stepsSnapshot, taskSnapshot, outputSnapshot), () => {});
+  }catch(err){ termLine("✗ Errore durante l'esecuzione del flusso: " + err.message, "error"); }
+  finally{ runBtn.disabled = false; }
+}
+
+/* ============================================================
+   TAB 4: FUNDRAISING ROUTINE
+   ============================================================ */
+const FR_SYSTEM = AGENTS_BY_ID["fundraising"].systemPrompt;
 let frSelectedBandi = [];
 let frPhase1Results = [];
-let frPhase2Results = '';
+let frPhase2Results = "";
 
-// ─── INIT ────────────────────────────────────────────────────────────
-function init() {
-  renderGrids();
-  initFlowSteps();
-  loadSettings();
-  updateDriveStatus();
-}
-
-function renderGrids() {
-  const gF = document.getElementById('grid-fondazione');
-  const gC = document.getElementById('grid-cda');
-  gF.innerHTML = ''; gC.innerHTML = '';
-  AGENTS.forEach(a => {
-    const card = document.createElement('div');
-    card.className = 'agent-card';
-    card.id = 'card-' + a.id;
-    card.innerHTML = `<div class="av ${a.av}">${a.initials}</div><div class="card-badge ${a.badgeCls}">${a.badge}</div><div class="card-name">${a.name}</div><div class="card-role">${a.role}</div><div class="card-agents-list">${a.agents.join(' · ')}</div>`;
-    card.onclick = () => selectAgent(a);
-    (a.group === 'fondazione' ? gF : gC).appendChild(card);
-  });
-}
-
-function initFlowSteps() {
-  const el = document.getElementById('flow-steps');
-  el.innerHTML = '';
-  for (let i = 0; i < 4; i++) {
-    const row = document.createElement('div');
-    row.className = 'flow-row'; row.id = 'frow-' + i;
-    row.style.display = i < 2 ? 'flex' : 'none';
-    const sel = document.createElement('select');
-    sel.className = 'flow-select'; sel.id = 'fsel-' + i;
-    sel.innerHTML = '<option value="">— seleziona agente —</option>' +
-      AGENTS.flatMap(a => a.agents.map(ag =>
-        `<option value="${a.id}::${ag}">${a.name} — ${ag}</option>`)).join('');
-    row.innerHTML = `<span class="step-num">Passo ${i+1}</span>`;
-    row.appendChild(sel);
-    el.appendChild(row);
+function frSetStep(n){
+  for(let i = 0; i < 4; i++){
+    const c = document.getElementById("frsc" + i), l = document.getElementById("frsl" + i);
+    if(i < n){ c.className = "fr-step-circle done"; c.textContent = "✓"; l.className = "fr-step-label done"; }
+    else if(i === n){ c.className = "fr-step-circle active"; c.textContent = i+1; l.className = "fr-step-label active"; }
+    else{ c.className = "fr-step-circle"; c.textContent = i+1; l.className = "fr-step-label"; }
   }
 }
 
-// ─── AGENT SELECTION ─────────────────────────────────────────────────
-function selectAgent(a) {
-  selectedAgent = a;
-  document.querySelectorAll('.agent-card').forEach(c => {
-    c.className = 'agent-card';
-  });
-  const card = document.getElementById('card-' + a.id);
-  card.className = `agent-card ${a.sel}`;
-  if (!chatHistory[a.id]) chatHistory[a.id] = [];
-  openChat(a);
-  switchTab('chat');
-}
-
-function openChat(a) {
-  document.getElementById('empty-chat-msg').style.display = 'none';
-  document.getElementById('chat-area').style.display = 'block';
-  const av = document.getElementById('ch-av');
-  av.className = `chat-head-av ${a.av}`;
-  av.textContent = a.initials;
-  document.getElementById('ch-name').textContent = a.name;
-  document.getElementById('ch-sub').textContent = a.role + ' · ' + a.agents.join(', ');
-  renderMsgs();
-  if (!chatHistory[a.id].length) appendSys('Agente attivo per ' + a.name + '. Puoi iniziare.');
-}
-
-function renderMsgs() {
-  if (!selectedAgent) return;
-  const c = document.getElementById('chat-msgs');
-  c.innerHTML = '';
-  (chatHistory[selectedAgent.id] || []).forEach(m => {
-    const d = document.createElement('div');
-    d.className = 'msg msg-' + (m.role === 'user' ? 'user' : 'agent');
-    d.textContent = m.content;
-    c.appendChild(d);
-  });
-  c.scrollTop = c.scrollHeight;
-}
-
-function appendSys(t) {
-  const c = document.getElementById('chat-msgs');
-  const d = document.createElement('div');
-  d.className = 'msg msg-sys'; d.textContent = t;
-  c.appendChild(d); c.scrollTop = c.scrollHeight;
-}
-
-function appendMsg(role, text) {
-  if (!selectedAgent) return;
-  if (!chatHistory[selectedAgent.id]) chatHistory[selectedAgent.id] = [];
-  chatHistory[selectedAgent.id].push({ role, content: text });
-  const c = document.getElementById('chat-msgs');
-  const d = document.createElement('div');
-  d.className = 'msg msg-' + (role === 'user' ? 'user' : 'agent');
-  d.textContent = text;
-  c.appendChild(d); c.scrollTop = c.scrollHeight;
-}
-
-function showThinking() {
-  const c = document.getElementById('chat-msgs');
-  const d = document.createElement('div');
-  d.className = 'thinking'; d.id = 'thinking';
-  d.innerHTML = '<span></span><span></span><span></span>';
-  c.appendChild(d); c.scrollTop = c.scrollHeight;
-}
-function hideThinking() { const t = document.getElementById('thinking'); if (t) t.remove(); }
-
-function clearChat() {
-  if (!selectedAgent) return;
-  chatHistory[selectedAgent.id] = [];
-  document.getElementById('chat-msgs').innerHTML = '';
-  appendSys('Nuova sessione per ' + selectedAgent.name + '.');
-}
-
-// ─── API CALL ────────────────────────────────────────────────────────
-async function callClaude(system, messages) {
-  const proxyUrl = settings.proxyUrl;
-  const proxyToken = settings.proxyToken;
-  if (!proxyUrl) throw new Error('Proxy non configurato. Vai su Impostazioni.');
-  const res = await fetch(proxyUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Proxy-Token': proxyToken || '' },
-    body: JSON.stringify({ system, messages, model: 'claude-sonnet-4-6', max_tokens: 1000 })
-  });
-  const data = await res.json();
-  if (data.error) throw new Error(data.error.message || 'Errore API');
-  return data.content?.find(b => b.type === 'text')?.text || '';
-}
-
-async function sendMsg() {
-  if (!selectedAgent) return;
-  const inp = document.getElementById('chat-input');
-  const text = inp.value.trim(); if (!text) return;
-  inp.value = '';
-  appendMsg('user', text);
-  showThinking();
-  const history = (chatHistory[selectedAgent.id] || []).slice(-12);
-  try {
-    const reply = await callClaude(selectedAgent.system,
-      history.map(m => ({ role: m.role === 'user' ? 'user' : 'assistant', content: m.content })));
-    hideThinking();
-    appendMsg('assistant', reply);
-  } catch(e) {
-    hideThinking();
-    appendMsg('assistant', '⚠ ' + e.message);
-  }
-}
-
-// ─── FLOW ────────────────────────────────────────────────────────────
-function addStep() { if (flowStepCount >= 4) return; document.getElementById('frow-' + flowStepCount).style.display = 'flex'; flowStepCount++; }
-function removeStep() { if (flowStepCount <= 2) return; flowStepCount--; document.getElementById('frow-' + flowStepCount).style.display = 'none'; document.getElementById('fsel-' + flowStepCount).value = ''; }
-
-function logLine(text, cls = '') {
-  const el = document.getElementById('flow-log');
-  el.style.display = 'block';
-  const d = document.createElement('div');
-  d.className = cls; d.textContent = text;
-  el.appendChild(d); el.scrollTop = el.scrollHeight;
-}
-function logOut(text) {
-  const el = document.getElementById('flow-log');
-  const d = document.createElement('div');
-  d.className = 'log-out'; d.textContent = text;
-  el.appendChild(d); el.scrollTop = el.scrollHeight;
-}
-
-async function runFlow() {
-  const task = document.getElementById('flow-task').value.trim();
-  if (!task) { alert('Inserisci un task.'); return; }
-  const steps = [];
-  for (let i = 0; i < flowStepCount; i++) {
-    const v = document.getElementById('fsel-' + i)?.value;
-    if (v) steps.push(v);
-  }
-  if (steps.length < 2) { alert('Seleziona almeno 2 agenti.'); return; }
-  const log = document.getElementById('flow-log');
-  log.innerHTML = ''; log.style.display = 'block';
-  logLine(`▶ Flusso avviato · ${steps.length} agenti · ${new Date().toLocaleTimeString('it-IT')}`, 'log-head');
-  logLine(`Task: "${task}"`); logLine('');
-  let current = task;
-  for (let i = 0; i < steps.length; i++) {
-    const [aid, arole] = steps[i].split('::');
-    const agent = AGENTS.find(a => a.id === aid);
-    if (!agent) continue;
-    logLine(`[Passo ${i+1}] ${agent.name} — ${arole}`, 'log-head');
-    if (i > 0) logLine(`  ↳ Riceve output dal passo precedente`, 'log-relay');
-    const prompt = i === 0 ? current :
-      `[OUTPUT RICEVUTO]\n\n${current}\n\n[ISTRUZIONI]\nElabora nel tuo ruolo (${arole}) l'output ricevuto dall'agente precedente.`;
-    try {
-      const reply = await callClaude(agent.system, [{ role: 'user', content: prompt }]);
-      current = reply;
-      logLine(`  ✓ Completato`, 'log-ok'); logLine('');
-    } catch(e) { logLine(`  ✗ ${e.message}`, 'log-err'); break; }
-  }
-  logLine(`■ Output finale:`, 'log-head');
-  logOut(current);
-  logLine('');
-  logLine(`Completato · ${new Date().toLocaleTimeString('it-IT')}`, 'log-ok');
-}
-
-// ─── FUNDRAISING ROUTINE ─────────────────────────────────────────────
-const FR_SYSTEM = `Sei l'Agente Fundraising di Fondazione Archimedu ETS, supervisione di Lorenzo Lorenzi. La fondazione sviluppa educazione innovativa e la valuta digitale Edu per l'economia dei diritti umani. Ha un progetto attivo alla scuola primaria Buon Pastore a Milano. Rispondi sempre in italiano con precisione e orientamento pratico.`;
-
-function frSetStep(n) {
-  for (let i = 0; i < 4; i++) {
-    const c = document.getElementById('sc' + i), l = document.getElementById('sl' + i);
-    if (i < n) { c.className = 'step-circle done'; c.textContent = '✓'; l.className = 'step-lbl done'; }
-    else if (i === n) { c.className = 'step-circle active'; c.textContent = i+1; l.className = 'step-lbl active'; }
-    else { c.className = 'step-circle'; c.textContent = i+1; l.className = 'step-lbl'; }
-  }
-}
-
-function frShowPhase(n) {
-  document.querySelectorAll('.fr-phase').forEach(p => p.classList.remove('active'));
-  document.getElementById('fr-phase-' + n).classList.add('active');
+function frShowPhase(n){
+  document.querySelectorAll(".fr-phase").forEach(p => p.classList.remove("active"));
+  document.getElementById("fr-phase-" + n).classList.add("active");
   frSetStep(n);
 }
 
-function frLoading(containerId, text = 'L\'agente sta lavorando…') {
-  document.getElementById(containerId).innerHTML = `<div class="fr-loading"><div class="thinking" style="padding:0;background:none;border:none;"><span></span><span></span><span></span></div>${text}</div>`;
-}
+function frLoadingHtml(text){ return `<div class="fr-loading"><div class="typing-dots"><span></span><span></span><span></span></div>${text}</div>`; }
 
-async function frPhase1() {
+async function frPhase1(){
   const aree = [];
-  if (document.getElementById('area-bandi').checked) aree.push('bandi pubblici e fondazioni bancarie (Cariplo, Regione Lombardia, Comune di Milano, PNRR, Ministero del Lavoro)');
-  if (document.getElementById('area-csr').checked) aree.push('programmi CSR di aziende con focus educazione e innovazione sociale in Lombardia');
-  if (document.getElementById('area-eu').checked) aree.push('bandi europei (Erasmus+, Horizon Europe, EaSI)');
-  const extra = document.getElementById('fr-context').value;
+  if(document.getElementById("frAreaBandi").checked) aree.push("bandi pubblici e fondazioni bancarie (Cariplo, Regione Lombardia, Comune di Milano, PNRR, Ministero del Lavoro)");
+  if(document.getElementById("frAreaCsr").checked) aree.push("programmi CSR di aziende con focus educazione e innovazione sociale in Lombardia");
+  if(document.getElementById("frAreaEu").checked) aree.push("bandi europei (Erasmus+, Horizon Europe, EaSI)");
+  const extra = document.getElementById("frContext").value;
   frShowPhase(1);
-  document.getElementById('bandi-list').innerHTML = '<div class="fr-loading"><div class="thinking" style="padding:0;background:none;border:none;"><span></span><span></span><span></span></div>Ricerca opportunità in corso…</div>';
-  const prompt = `Identifica 6-8 opportunità di finanziamento concrete per Fondazione Archimedu ETS nelle aree: ${aree.join('; ')}.${extra ? ' Contesto: ' + extra : ''}
-
-Rispondi SOLO in JSON valido, senza testo aggiuntivo:
-[{"nome":"...","ente":"...","tipo":"bando","candidabilita":"alta","importo":"es. fino a €50.000","scadenza":"es. 30 settembre 2026","descrizione":"2 righe su cosa finanzia e perché rilevante per Archimedu"}]
-tipo può essere "bando" o "csr". candidabilita può essere "alta" o "media".`;
-  try {
-    const raw = await callClaude(FR_SYSTEM, [{ role: 'user', content: prompt }]);
-    frPhase1Results = JSON.parse(raw.replace(/```json|```/g, '').trim());
+  document.getElementById("frBandiList").innerHTML = frLoadingHtml("Ricerca opportunità in corso…");
+  const prompt = `Identifica 6-8 opportunità di finanziamento concrete per Fondazione Archimedu ETS nelle aree: ${aree.join("; ")}.${extra ? " Contesto: " + extra : ""}\n\nRispondi SOLO in JSON valido, senza testo aggiuntivo:\n[{"nome":"...","ente":"...","tipo":"bando","candidabilita":"alta","importo":"es. fino a €50.000","scadenza":"es. 30 settembre 2026","descrizione":"2 righe su cosa finanzia e perché rilevante per Archimedu"}]\ntipo può essere "bando" o "csr". candidabilita può essere "alta" o "media".`;
+  try{
+    const raw = await callAgent(FR_SYSTEM, [{role:"user", content:prompt}]);
+    frPhase1Results = JSON.parse(raw.replace(/```json|```/g,"").trim());
     frRenderBandi();
-  } catch(e) {
-    document.getElementById('bandi-list').innerHTML = `<div style="color:var(--red);font-size:13px;padding:12px;">⚠ ${e.message}</div>`;
+  }catch(e){
+    document.getElementById("frBandiList").innerHTML = `<div style="color:var(--error);font-size:13px;padding:12px;">Errore: ${e.message}</div>`;
   }
 }
 
-function frRenderBandi() {
-  const el = document.getElementById('bandi-list');
-  el.innerHTML = '';
+function frRenderBandi(){
+  const el = document.getElementById("frBandiList"); el.innerHTML = "";
+  frSelectedBandi = [];
   frPhase1Results.forEach((b, i) => {
-    const card = document.createElement('div');
-    card.className = 'bando-card'; card.id = 'bando-' + i;
-    card.innerHTML = `
-      <input type="checkbox" class="bando-check" id="bchk-${i}" onchange="frToggle(${i})">
-      <div class="bando-body">
-        <div class="bando-name">${b.nome}</div>
-        <div class="bando-tags">
-          <span class="bando-tag ${b.tipo === 'csr' ? 'tag-csr' : 'tag-bando'}">${b.tipo === 'csr' ? 'CSR' : 'Bando'}</span>
-          <span class="bando-tag ${b.candidabilita === 'alta' ? 'tag-alta' : 'tag-media'}">Candidabilità ${b.candidabilita}</span>
-          <span class="bando-tag tag-bando">${b.importo}</span>
-        </div>
-        <div class="bando-desc">${b.descrizione}</div>
-        <div class="bando-meta">Ente: ${b.ente} · Scadenza: ${b.scadenza}</div>
-      </div>`;
-    card.onclick = e => { if (e.target.tagName !== 'INPUT') { const chk = document.getElementById('bchk-' + i); chk.checked = !chk.checked; frToggle(i); } };
+    const card = document.createElement("div");
+    card.className = "bando-card"; card.id = "bando-" + i;
+    card.innerHTML = `<input type="checkbox" class="bando-check" id="bchk-${i}" onchange="frToggle(${i})"><div class="bando-body"><div class="bando-name">${b.nome}</div><div class="bando-tags"><span class="bando-tag ${b.tipo==='csr'?'tag-csr':'tag-bando'}">${b.tipo==='csr'?'CSR':'Bando'}</span><span class="bando-tag ${b.candidabilita==='alta'?'tag-alta':'tag-media'}">Candidabilità ${b.candidabilita}</span><span class="bando-tag tag-bando">${b.importo}</span></div><div class="bando-desc">${b.descrizione}</div><div class="bando-meta">Ente: ${b.ente} · Scadenza: ${b.scadenza}</div></div>`;
+    card.onclick = e => { if(e.target.tagName !== "INPUT"){ const chk = document.getElementById("bchk-" + i); chk.checked = !chk.checked; frToggle(i); } };
     el.appendChild(card);
   });
 }
 
-function frToggle(i) {
-  const chk = document.getElementById('bchk-' + i);
-  const card = document.getElementById('bando-' + i);
-  if (chk.checked) { card.classList.add('selected'); if (!frSelectedBandi.includes(i)) frSelectedBandi.push(i); }
-  else { card.classList.remove('selected'); frSelectedBandi = frSelectedBandi.filter(x => x !== i); }
-  document.getElementById('fr-sel-count').textContent = frSelectedBandi.length + ' selezionat' + (frSelectedBandi.length === 1 ? 'o' : 'i');
-  document.getElementById('btn-screening').disabled = frSelectedBandi.length === 0;
+function frToggle(i){
+  const chk = document.getElementById("bchk-" + i); const card = document.getElementById("bando-" + i);
+  if(chk.checked){ card.classList.add("selected"); if(!frSelectedBandi.includes(i)) frSelectedBandi.push(i); }
+  else{ card.classList.remove("selected"); frSelectedBandi = frSelectedBandi.filter(x => x !== i); }
+  document.getElementById("frSelCount").textContent = frSelectedBandi.length + " selezionat" + (frSelectedBandi.length === 1 ? "o" : "i");
+  document.getElementById("frBtnScreening").disabled = frSelectedBandi.length === 0;
 }
 
-async function frPhase2() {
+async function frPhase2(){
   frShowPhase(2);
-  frLoading('fr-screening-output', 'Screening candidabilità in corso…');
+  document.getElementById("frScreeningOutput").innerHTML = frLoadingHtml("Screening candidabilità in corso…");
   const sel = frSelectedBandi.map(i => frPhase1Results[i]);
-  const lista = sel.map((b, i) => `${i+1}. ${b.nome} (${b.ente}) — ${b.descrizione}`).join('\n');
-  const prompt = `Esegui uno screening dettagliato per questi ${sel.length} bandi selezionati:\n\n${lista}\n\nPer ciascuno: coerenza con missione Archimedu, requisiti principali, punti di forza, rischi, priorità di candidatura (Alta/Media/Bassa). Concludi con raccomandazione su quale candidare per primo.`;
-  try {
-    frPhase2Results = await callClaude(FR_SYSTEM, [{ role: 'user', content: prompt }]);
-    document.getElementById('fr-screening-output').innerHTML = `<div class="fr-output">${frPhase2Results}</div>`;
-    document.getElementById('fr-screening-bar').style.display = 'flex';
-  } catch(e) {
-    document.getElementById('fr-screening-output').innerHTML = `<div style="color:var(--red);font-size:13px;">⚠ ${e.message}</div>`;
+  const lista = sel.map((b, i) => `${i+1}. ${b.nome} (${b.ente}) — ${b.descrizione}`).join("\n");
+  const prompt = `Esegui uno screening dettagliato per questi ${sel.length} bandi/programmi selezionati:\n\n${lista}\n\nPer ciascuno: coerenza con missione Archimedu, requisiti principali, punti di forza, rischi, priorità di candidatura (Alta/Media/Bassa). Concludi con raccomandazione su quale candidare per primo.`;
+  try{
+    frPhase2Results = await callAgent(FR_SYSTEM, [{role:"user", content:prompt}]);
+    document.getElementById("frScreeningOutput").innerHTML = `<div class="fr-output">${escapeHtml(frPhase2Results)}</div>`;
+    document.getElementById("frScreeningBar").style.display = "flex";
+  }catch(e){
+    document.getElementById("frScreeningOutput").innerHTML = `<div style="color:var(--error);font-size:13px;">Errore: ${e.message}</div>`;
   }
 }
 
-async function frPhase3() {
+async function frPhase3(){
   frShowPhase(3);
-  frLoading('fr-bozza-output', 'Preparazione bozza in corso…');
-  const prompt = `Sulla base di questo screening:\n\n${frPhase2Results}\n\nPrepara una bozza di candidatura per il bando con priorità Alta:\n1. Titolo del progetto\n2. Abstract (5-6 righe)\n3. Obiettivi (3-5 punti)\n4. Impatto atteso\n5. Budget sintetico\n6. Nota per Lorenzo: cosa manca e prossimi passi`;
-  try {
-    const result = await callClaude(FR_SYSTEM, [{ role: 'user', content: prompt }]);
-    document.getElementById('fr-bozza-output').innerHTML = `<div class="fr-output">${result}</div>`;
-    document.getElementById('fr-bozza-bar').style.display = 'flex';
-  } catch(e) {
-    document.getElementById('fr-bozza-output').innerHTML = `<div style="color:var(--red);font-size:13px;">⚠ ${e.message}</div>`;
+  document.getElementById("frBozzaOutput").innerHTML = frLoadingHtml("Preparazione bozza in corso…");
+  const prompt = `Sulla base di questo screening:\n\n${frPhase2Results}\n\nPrepara una bozza di candidatura per il bando con priorità Alta:\n1. Titolo del progetto\n2. Abstract (5-6 righe)\n3. Obiettivi (3-5 punti)\n4. Impatto atteso\n5. Budget sintetico con principali voci di costo\n6. Nota per Lorenzo: cosa manca e prossimi passi necessari prima dell'invio`;
+  try{
+    const result = await callAgent(FR_SYSTEM, [{role:"user", content:prompt}]);
+    document.getElementById("frBozzaOutput").innerHTML = `<div class="fr-output">${escapeHtml(result)}</div>`;
+    document.getElementById("frBozzaBar").style.display = "flex";
+    frPhase2Results = frPhase2Results + "\n\nBOZZA DI CANDIDATURA:\n" + result;
+  }catch(e){
+    document.getElementById("frBozzaOutput").innerHTML = `<div style="color:var(--error);font-size:13px;">Errore: ${e.message}</div>`;
   }
 }
 
-function frReset() {
-  frSelectedBandi = []; frPhase1Results = []; frPhase2Results = '';
+function frSaveContext(){
+  const bandiSelezionati = frSelectedBandi.map(i => frPhase1Results[i].nome).join(", ");
+  const content = "# Sessione Fundraising Archimedu\n\n" + frPhase2Results;
+  pendingContextSave = {
+    kind: "chat",
+    folder: DRIVE_FOLDER_MAP["fundraising"],
+    filenameBase: "Sessione_Fundraising",
+    buildNote: async () => content,
+    afterDone: () => {}
+  };
+  openContextEditModal(content);
+}
+
+function frReset(){
+  frSelectedBandi = []; frPhase1Results = []; frPhase2Results = "";
   frShowPhase(0);
-  document.getElementById('bandi-list').innerHTML = '';
-  document.getElementById('fr-screening-output').innerHTML = '';
-  document.getElementById('fr-bozza-output').innerHTML = '';
-  document.getElementById('fr-screening-bar').style.display = 'none';
-  document.getElementById('fr-bozza-bar').style.display = 'none';
-  document.getElementById('btn-screening').disabled = true;
-  document.getElementById('fr-sel-count').textContent = '0 selezionati';
+  document.getElementById("frBandiList").innerHTML = "";
+  document.getElementById("frScreeningOutput").innerHTML = "";
+  document.getElementById("frBozzaOutput").innerHTML = "";
+  document.getElementById("frScreeningBar").style.display = "none";
+  document.getElementById("frBozzaBar").style.display = "none";
+  document.getElementById("frBtnScreening").disabled = true;
+  document.getElementById("frSelCount").textContent = "0 selezionati";
 }
 
-async function frSaveDrive() {
-  const content = document.getElementById('fr-bozza-output').textContent;
-  const date = new Date().toLocaleDateString('it-IT').replace(/\//g, '-');
-  openSaveModal('Sessione_Fundraising_' + date + '.txt', '01_Fundraising', content);
-}
-
-// ─── SAVE CONTEXT ────────────────────────────────────────────────────
-function saveContext() {
-  if (!selectedAgent) return;
-  const msgs = (chatHistory[selectedAgent.id] || []);
-  if (!msgs.length) { alert('Nessuna conversazione da salvare.'); return; }
-  const date = new Date().toLocaleDateString('it-IT').replace(/\//g, '-');
-  const content = msgs.map(m => (m.role === 'user' ? 'Lorenzo: ' : selectedAgent.name + ': ') + m.content).join('\n\n');
-  const folderMap = { lorenzo:'08_Direttivo_Strategico', giada:'03_Onboarding_Scuole', giovanni:'05_Endowment_Patrimonio', giancarlo:'04_Edu_Currency', francesca:'02_Legal', federica:'07_Comunicazione', fundraising:'01_Fundraising', contesto:'06_Context_Agent' };
-  openSaveModal(`Sessione_${selectedAgent.name.split(' ')[0]}_${date}.txt`, folderMap[selectedAgent.id] || '06_Context_Agent', content);
-}
-
-function openSaveModal(filename, folder, content) {
-  document.getElementById('save-filename').value = filename;
-  document.getElementById('save-folder').value = folder;
-  document.getElementById('save-content').value = content;
-  document.getElementById('save-modal').classList.add('open');
-}
-function closeSaveModal() { document.getElementById('save-modal').classList.remove('open'); }
-
-function downloadContext() {
-  const content = document.getElementById('save-content').value;
-  const filename = document.getElementById('save-filename').value;
-  const blob = new Blob([content], { type: 'text/plain' });
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = filename; a.click();
-  closeSaveModal();
-}
-
-function confirmSaveDrive() {
-  if (!driveConnected) { alert('Drive non connesso. Configura nelle Impostazioni.'); return; }
-  downloadContext();
-}
-
-// ─── SETTINGS ────────────────────────────────────────────────────────
-function loadSettings() {
-  settings = JSON.parse(localStorage.getItem('archimedu-settings') || '{}');
-  if (settings.proxyUrl) document.getElementById('proxy-url').value = settings.proxyUrl;
-  if (settings.proxyToken) document.getElementById('proxy-token').value = settings.proxyToken;
-  if (settings.driveClientId) document.getElementById('drive-client-id').value = settings.driveClientId;
-}
-
-function saveSettings() {
-  settings.proxyUrl = document.getElementById('proxy-url').value.trim();
-  settings.proxyToken = document.getElementById('proxy-token').value.trim();
-  settings.driveClientId = document.getElementById('drive-client-id').value.trim();
-  localStorage.setItem('archimedu-settings', JSON.stringify(settings));
-  updateDriveStatus();
-  alert('Impostazioni salvate.');
-}
-
-function updateDriveStatus() {
-  const connected = driveConnected;
-  ['hdr','settings'].forEach(s => {
-    const dot = document.getElementById('drive-dot-' + s);
-    if (dot) dot.className = 'drive-dot' + (connected ? ' connected' : '');
-  });
-  const lbl = document.getElementById('drive-label-hdr');
-  if (lbl) lbl.textContent = connected ? 'Drive connesso' : 'Drive non connesso';
-  const sl = document.getElementById('drive-label-settings');
-  if (sl) sl.textContent = 'Drive: ' + (connected ? 'Connesso' : 'Non connesso');
-}
-
-// ─── TABS ────────────────────────────────────────────────────────────
-function switchTab(name) {
-  const names = ['agents','chat','flow','fundraising','guide','settings'];
-  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', names[i] === name));
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('panel-' + name).classList.add('active');
-}
-
-init();
+/* ============================================================
+   INIT
+   ============================================================ */
+updateDriveStatusUI();
 </script>
 </body>
 </html>
