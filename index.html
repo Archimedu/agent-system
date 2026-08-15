@@ -872,7 +872,7 @@ async function callAgent(systemPrompt, messages){
   const response = await fetch(claudeProxyUrl, {
     method: "POST",
     headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify({ token: claudeProxyToken, payload: { model: "claude-sonnet-4-6", max_tokens: 1000, system: systemPrompt, messages: messages } })
+    body: JSON.stringify({ token: claudeProxyToken, payload: { model: "claude-sonnet-4-6", max_tokens: 2000, system: systemPrompt, messages: messages } })
   });
   if(!response.ok) throw new Error("Errore proxy: " + response.status);
   const data = await response.json();
@@ -1075,13 +1075,37 @@ async function frPhase1(){
   const extra = document.getElementById("frContext").value;
   frShowPhase(1);
   document.getElementById("frBandiList").innerHTML = frLoadingHtml("Ricerca opportunità in corso…");
-  const prompt = `Identifica 6-8 opportunità di finanziamento concrete per Fondazione Archimedu ETS nelle aree: ${aree.join("; ")}.${extra ? " Contesto: " + extra : ""}\n\nRispondi SOLO in JSON valido, senza testo aggiuntivo:\n[{"nome":"...","ente":"...","tipo":"bando","candidabilita":"alta","importo":"es. fino a €50.000","scadenza":"es. 30 settembre 2026","descrizione":"2 righe su cosa finanzia e perché rilevante per Archimedu"}]\ntipo può essere "bando" o "csr". candidabilita può essere "alta" o "media".`;
+  const prompt = `Identifica esattamente 4 opportunità di finanziamento per Fondazione Archimedu ETS nelle seguenti aree: ${aree.join("; ")}.${extra ? " Contesto aggiuntivo: " + extra : ""}
+
+Rispondi SOLO con un array JSON valido e completo, nessun testo prima o dopo:
+[
+  {"n":"Nome bando","e":"Ente","t":"bando","c":"alta","i":"€X","s":"MM/YYYY","d":"Descrizione breve max 15 parole"},
+  {"n":"Nome","e":"Ente","t":"csr","c":"media","i":"€X","s":"aperto","d":"Descrizione breve max 15 parole"}
+]
+Campi: t = "bando" o "csr", c = "alta" o "media". Completa sempre tutti e 4 gli oggetti.`;
   try{
     const raw = await callAgent(FR_SYSTEM, [{role:"user", content:prompt}]);
-    frPhase1Results = JSON.parse(raw.replace(/```json|```/g,"").trim());
+    const cleaned = raw.replace(/```json|```/g,"").trim();
+    // parsing difensivo: cerca il primo [ e l'ultimo ] completo
+    const start = cleaned.indexOf("[");
+    const end = cleaned.lastIndexOf("]");
+    if(start === -1 || end === -1 || end <= start) throw new Error("Formato JSON non trovato nella risposta. Riprova.");
+    const jsonStr = cleaned.slice(start, end + 1);
+    const parsed = JSON.parse(jsonStr);
+    // normalizza i campi abbreviati
+    frPhase1Results = parsed.map(b => ({
+      nome: b.nome || b.n || "—",
+      ente: b.ente || b.e || "—",
+      tipo: b.tipo || b.t || "bando",
+      candidabilita: b.candidabilita || b.c || "media",
+      importo: b.importo || b.i || "—",
+      scadenza: b.scadenza || b.s || "—",
+      descrizione: b.descrizione || b.d || "—"
+    }));
+    if(frPhase1Results.length === 0) throw new Error("Nessuna opportunità trovata. Riprova.");
     frRenderBandi();
   }catch(e){
-    document.getElementById("frBandiList").innerHTML = `<div style="color:var(--error);font-size:13px;padding:12px;">Errore: ${e.message}</div>`;
+    document.getElementById("frBandiList").innerHTML = `<div style="color:var(--error);font-size:13px;padding:12px;">⚠ ${e.message}<br><br><button class="btn-ghost" onclick="frPhase1()" style="margin-top:8px;">↺ Riprova</button></div>`;
   }
 }
 
